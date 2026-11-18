@@ -60,6 +60,18 @@ turn    recall@5/10:  88.0% /  98.0%   MRR  74.9%   nDCG@10  78.8%
 
 Per type, session recall@10 was 100% across knowledge-update, multi-session, single-session-assistant, single-session-preference, single-session-user, and temporal-reasoning. The only turn-level miss was one preference question whose answer turn ranked outside the top 10.
 
+## Baseline result (LongMemEval-S, 50 questions, session granularity)
+
+Run on 2026-11-19 with `seed=42`, local Qwen3-embedding-0.6B (1024d), 2405 sessions:
+
+```text
+session recall@5/10: 92.0% / 96.0%   MRR 82.5%   nDCG@10 85.5%
+```
+
+Per type (session recall@10): knowledge-update 87.5%, multi-session 100%, single-session-assistant 100%, single-session-preference 100%, single-session-user 88.9%, temporal-reasoning 100%.
+
+Compared with oracle, the S run adds ~50x more distractor sessions: session recall@10 drops from 100% to 96%, MRR from 100% to 82.5%. The two session-level misses were a single-session-user discount fact and a knowledge-update grocery-list question.
+
 ## LongMemEval-S note
 
 `longmemeval_s_cleaned.json` has about 48 sessions / 494 turns per question. A 50-question turn-level run needs ~25k embedding calls; with the local CPU Qwen endpoint that is impractically slow. Use `--granularity session` for the first S run, or use a GPU/remote embedding endpoint for turn-level.
