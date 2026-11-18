@@ -16,7 +16,19 @@ DeepSeek Harness 的跨会话持久记忆插件：**按需捕获 + 规则/LLM �
 
 要求：Node.js ≥ 22.5（`node:sqlite`）、dsh 0.2.x（在 `0.2.2-rc.1` 上验证）。插件本身无 npm 运行时依赖。
 
-通过 Plugin Manager 安装：
+### 从 GitHub 安装（无需 npm）
+
+```
+dsh plugin --profile <profile> add github:yeweimei/dsh-memory-harness
+```
+
+或者下载 GitHub Release 里的 `dsh-memory-harness-0.19.0.tgz`，再本地安装：
+
+```
+dsh plugin --profile <profile> add "file:/绝对路径/dsh-memory-harness-0.19.0.tgz"
+```
+
+### 通过 Plugin Manager 安装
 
 ```
 plugin_manager install_bundle  target: dsh-memory-harness   # 或本地目录 / link: 路径
