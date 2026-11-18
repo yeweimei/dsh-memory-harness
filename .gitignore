@@ -12,3 +12,9 @@ exports/
 
 # local manual verification artifacts
 test/manual/artifacts/
+
+# downloaded evaluation datasets
+test/eval/data/*.json
+
+# evaluation outputs (dataset-derived)
+test/eval/results/
