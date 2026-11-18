@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.19.1
+
+- Fix vector index invalidation after embedding settings changes: re-index persisted vectors when they still match the configured model/dimensions, and only mark mismatched records as pending.
+- Add a “Rebuild vector index” action in diagnostics; no embedding calls are made when stored vectors are usable.
+- Clarify that pending vectors do not mean data loss.
+
 ## 0.19.0
 
 Release preparation.

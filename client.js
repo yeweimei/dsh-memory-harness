@@ -369,6 +369,10 @@ window.__ModuleLoader__.load({
         return this.call('reviewQueue', { limit, offset })
       }
 
+      reindex() {
+        return this.call('reindex')
+      }
+
       keepReview(id) {
         return this.call('keepReview', { id })
       }
@@ -1290,6 +1294,7 @@ window.__ModuleLoader__.load({
           h('button', { type: 'button', className: 'dsh-memory-button', disabled: props.busy, onClick: props.onExport }, t('Export diagnostics JSON', '导出诊断 JSON')),
           h('button', { type: 'button', className: 'dsh-memory-button', disabled: props.busy, onClick: props.onBackup }, t('Back up now', '立即备份')),
           h('button', { type: 'button', className: 'dsh-memory-button', disabled: props.busy, onClick: props.onConsolidate }, t('Consolidate', '整理')),
+          h('button', { type: 'button', className: 'dsh-memory-button', disabled: props.busy, onClick: props.onReindex }, t('Rebuild vector index', '重建向量索引')),
         ),
         props.notice !== null ? h('div', { className: 'dsh-memory-banner ok' }, props.notice) : null,
         ...(report.warnings ?? []).map((warning, index) =>
@@ -1735,6 +1740,21 @@ window.__ModuleLoader__.load({
           setError(errorText(failure))
         } finally {
           setBusyId(null)
+        }
+      }
+
+      async function reindexEmbeddings() {
+        setDiagBusy(true)
+        setDiagNotice(null)
+        setError(null)
+        try {
+          const result = await client.reindex()
+          setDiagNotice(`${t('Indexed', '已索引')} ${result.indexed}/${result.total} · ${t('pending', '待补')} ${result.pending}`)
+          await refresh()
+        } catch (failure) {
+          setError(errorText(failure))
+        } finally {
+          setDiagBusy(false)
         }
       }
 

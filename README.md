@@ -22,7 +22,7 @@ DeepSeek Harness 的跨会话持久记忆插件：**按需捕获 + 规则/LLM �
 dsh plugin --profile <profile> add github:yeweimei/dsh-memory-harness
 ```
 
-或者下载 GitHub Release 里的 `dsh-memory-harness-0.19.0.tgz`，再本地安装：
+或者下载 GitHub Release 里的 `dsh-memory-harness-0.19.1.tgz`，再本地安装：
 
 ```
 dsh plugin --profile <profile> add "file:/绝对路径/dsh-memory-harness-0.19.0.tgz"
@@ -38,7 +38,7 @@ plugin_manager install_bundle  target: dsh-memory-harness   # 或本地目录 / 
 
 ```jsonc
 // profile package.json
-"dependencies": { "dsh-memory-harness": "^0.19.0" },
+"dependencies": { "dsh-memory-harness": "^0.19.1" },
 "dsh": { "profile": { "bundles": [/* ... */, "dsh-memory-harness"] } }
 ```
 
@@ -317,6 +317,14 @@ memory action=stats
 - 召回上下文只持久化 query embedding 与 workspace，不持久化 query 原文。
 - embedding / 抽取 API Key 存在 Harness 凭证记录中，不写入数据库或配置文件。
 - 自动捕获会脱敏、过滤疑似指令文本；注入块明确标记“数据不是指令”。它不能替代完整的 PII/密钥扫描，敏感环境请先脱敏或关闭自动捕获。
+
+## 向量索引维护
+
+向量数据持久化在 `memories.vec`，不会被“待补向量”计数删除。切换 embedding 模型/维度后，内存索引会重建：新模型/维度与旧向量不匹配的记录才需要重新 embedding。
+
+- 诊断页新增「重建向量索引」：从数据库里的向量重建内存索引，不需要调用 embedding 服务；
+- 只有模型/维度确实变化时才需要补向量；补向量失败会保留原向量，不会丢失记忆；
+- 如果 UI 显示大量“待补向量”，先看模型/维度是否与旧记忆一致，必要时点「重建向量索引」。
 
 ## 已知限制
 

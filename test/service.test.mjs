@@ -1138,6 +1138,17 @@ test('ratings with default unknown do not count unrated recalls as accurate', as
   assert.equal(report.days[report.days.length - 1].mqi, null)
 })
 
+test('reindexVectors restores stored vectors without re-embedding', async () => {
+  const { service } = await makeService()
+  await service.save({ text: '项目使用 TypeScript 工具链。', kind: 'project' }, session)
+  service.vectors.clear()
+  service.pending.clear()
+  const result = service.reindexVectors()
+  assert.equal(result.total, 1)
+  assert.equal(result.indexed, 1)
+  assert.equal(result.pending, 0)
+})
+
 test('stats reports counts, storage backend and embedder health', async () => {
   const { service } = await makeService()
   await service.save({ text: '用户偏好 TypeScript。', kind: 'preference' }, session)
