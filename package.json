@@ -56,5 +56,14 @@
     "test": "node --test test/*.test.mjs",
     "test:manual": "node test/manual/verify-rpc.mjs",
     "pack:check": "npm pack --dry-run"
+  },
+  "author": "yeweimei",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeweimei/dsh-memory-harness.git"
+  },
+  "homepage": "https://github.com/yeweimei/dsh-memory-harness#readme",
+  "bugs": {
+    "url": "https://github.com/yeweimei/dsh-memory-harness/issues"
   }
 }

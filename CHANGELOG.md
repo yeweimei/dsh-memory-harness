@@ -8,6 +8,7 @@ Release preparation.
 - Add npm scripts (`test`, `pack:check`, `test:manual`), `engines.dsh`, changelog and release checklist.
 - Update README to schema v7, LLM conflict judgment, proactive recall, data/privacy notes and known limitations.
 - Add repository `.gitignore` rules so local databases, backups and tarballs are never committed.
+- Add npm repository/homepage/bugs/author metadata for `yeweimei/dsh-memory-harness`.
 
 ## 0.18.1
 
