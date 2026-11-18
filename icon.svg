@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Memory">
+  <defs>
+    <linearGradient id="dsh-memory-gradient" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5b8def"/>
+      <stop offset="1" stop-color="#7b5bf0"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="8" width="52" height="48" rx="13" fill="url(#dsh-memory-gradient)"/>
+  <rect x="6" y="8" width="52" height="48" rx="13" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5"/>
+  <path d="M19 22h26M19 31h26M19 40h17" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="44" cy="45" r="7" fill="#ffffff" fill-opacity="0.94"/>
+  <path d="M44 41v8M40 45h8" stroke="#6b6ff0" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

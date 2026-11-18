@@ -1,0 +1,21 @@
+# Bundle layer for dsh-memory-harness.
+#
+# The row below carries the whole default configuration. A profile patch can
+# override it by the same id; an override row REPLACES the complete config, so
+# copy every key you want to keep into that row.
+#
+# apiKey is intentionally empty: a key saved from the plugin settings page lives
+# in the Harness credential store, and DSH_MEMORY_API_KEY is the environment
+# fallback. Put a shared default key here only for a private deployment.
+- insert:
+    - id: memory
+      name: 'dsh-memory-harness'
+      config:
+        embedding:
+          baseURL: ''
+          apiKey: ''
+          model: ''
+          dimensions: 1024
+        inject:
+          coreMemories: 10
+          coreMinImportance: 3

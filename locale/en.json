@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Memory",
+    "description": "Persistent cross-session memory with SQLite FTS5/vector/graph retrieval, rule + LLM candidate capture for pitfalls and project digests, proactive failure hints, credential-backed embedding settings and a memory panel."
+  }
+}

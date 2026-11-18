@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source syntax
+        run: |
+          node --check index.js
+          node --check client.js
+          for file in lib/*.js; do node --check "$file"; done
+      - name: Unit and integration tests
+        run: npm test
+      - name: Package contents
+        run: npm run pack:check

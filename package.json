@@ -1,0 +1,60 @@
+{
+  "name": "dsh-memory-harness",
+  "version": "0.19.0",
+  "description": "Persistent cross-session memory for DeepSeek Harness: SQLite storage with FTS5/vector/graph retrieval, on-demand capture, rule+LLM candidate extraction (pitfalls, decisions, project digests), proactive failure hints, credential-backed embedding settings and a memory panel.",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/**/*.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=22.5.0",
+    "dsh": ">=0.2.2-rc.1"
+  },
+  "license": "MIT",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "memory",
+    "sqlite",
+    "fts5",
+    "embedding",
+    "rag"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "test:manual": "node test/manual/verify-rpc.mjs",
+    "pack:check": "npm pack --dry-run"
+  }
+}

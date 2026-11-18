@@ -1,0 +1,14 @@
+node_modules/
+*.tgz
+*.log
+.DS_Store
+
+# local memory databases / backups / exports must never be committed
+*.db
+*.db-wal
+*.db-shm
+backups/
+exports/
+
+# local manual verification artifacts
+test/manual/artifacts/
