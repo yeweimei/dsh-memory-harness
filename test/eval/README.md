@@ -36,10 +36,11 @@ Optional flags:
 | `--batch-size` | 4 | embedding batch size |
 | `--max-chars` | 1000 | per-turn text cap before embedding |
 | `--include-abstention` | false | include LongMemEval abstention questions |
+| `--granularity` | `turn` | `turn` (default) or `session`; session is much cheaper on a CPU embedding server |
 
 ## What is measured
 
-Each oracle turn is stored as a session-scoped memory. For each question:
+For `--granularity turn`, each oracle turn is stored as a session-scoped memory. For `--granularity session`, one memory contains the whole session (truncated by `--max-chars`) and only session-level recall is reported. For each question:
 
 - **session recall@k**: a retrieved turn belongs to an `answer_session_ids` session;
 - **turn recall@k**: a retrieved turn has `has_answer: true`;
@@ -48,7 +49,7 @@ Each oracle turn is stored as a session-scoped memory. For each question:
 
 Abstention questions are excluded by default, matching LongMemEval's retrieval convention.
 
-## Baseline result (oracle, 50 questions)
+## Baseline result (oracle, 50 questions, turn granularity)
 
 Run on 2026-11-19 with `seed=42`, local Qwen3-embedding-0.6B (1024d):
 
@@ -58,6 +59,17 @@ turn    recall@5/10:  88.0% /  98.0%   MRR  74.9%   nDCG@10  78.8%
 ```
 
 Per type, session recall@10 was 100% across knowledge-update, multi-session, single-session-assistant, single-session-preference, single-session-user, and temporal-reasoning. The only turn-level miss was one preference question whose answer turn ranked outside the top 10.
+
+## LongMemEval-S note
+
+`longmemeval_s_cleaned.json` has about 48 sessions / 494 turns per question. A 50-question turn-level run needs ~25k embedding calls; with the local CPU Qwen endpoint that is impractically slow. Use `--granularity session` for the first S run, or use a GPU/remote embedding endpoint for turn-level.
+
+```bash
+npm run eval:longmemeval -- \
+  --data test/eval/data/longmemeval_s_cleaned.json \
+  --limit 50 --granularity session --batch-size 8 --max-chars 2000 \
+  --out test/eval/results/longmemeval-s-50-session.json
+```
 
 ## Caveats
 
