@@ -1,48 +1,129 @@
 # dsh-memory-harness
 
-DeepSeek Harness 的跨会话持久记忆插件：**按需捕获 + 规则/LLM 自动准入 + 分层存储/整理/回滚/导入/备份 + 可观测性诊断 + 混合检索 + SQLite 单文件库（FTS5/向量/图）**，默认后端零 npm 依赖（Node 内置 `node:sqlite`），装上就能用。
+> **让 DeepSeek Harness 真正记住你：跨会话、能纠错、越用越准。**
+>
+> 不是再存一份聊天记录，而是把值得留下的偏好、决策、项目事实和踩过的坑，变成下次会主动想起的记忆。
 
-## 它做什么
+[![CI](https://github.com/yeweimei/dsh-memory-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/yeweimei/dsh-memory-harness/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/yeweimei/dsh-memory-harness)](https://github.com/yeweimei/dsh-memory-harness/releases)
 
-- **按需捕获**：Agent 判断值得记时调用 `memory` 工具；用户也可以用 `/remember` 直接落库。不做后台自动摘要、不转储聊天记录。
-- **混合检索**：OpenAI 兼容 embedding 语义召回 + FTS5/BM25 关键词召回（中文先切 bigram），用 RRF 融合排序，不依赖两种分数的量纲。
-- **SQLite 默认存储**：一条记忆一行，向量存 float32 BLOB，关键词走 FTS5；WAL 模式、单文件、可备份。旧版 JSON domain 数据在首次启动时自动迁移（保留原目录作备份）。
-- **会话开头核心记忆注入**：新会话自动带入少量高价值记忆（默认 10 条、重要度 ≥ 3），有字符预算。
-- **两个界面入口**：设置页只放配置；侧栏「记忆」面板负责浏览与增删改查。
-- **嵌入服务可配置**：Base URL / 模型 / 维度 / API Key / 超时都能在设置页改，**保存即时生效，不重启插件**；API Key 存在 Harness 凭证记录里，不写进配置或数据库。
-- **可降级**：嵌入服务不可用时保存照常成功（标记待补向量），检索退回关键词；恢复后定时批量补向量。
+它解决的是一个很具体的问题：
 
-## 安装（其他人）
+- 你上周说过的偏好，这周还要再说一遍；
+- 项目里已经踩过的坑，换个会话又踩一次；
+- 旧决定早就变了，Agent 还在按旧版本执行；
+- 记忆越存越多，但真正需要时召回不准。
 
-要求：Node.js ≥ 22.5（`node:sqlite`）、dsh 0.2.x（在 `0.2.2-rc.1` 上验证）。插件本身无 npm 运行时依赖。
+`dsh-memory-harness` 把这些记忆保存在本机 SQLite 里，用向量 + 关键词 + 图混合检索，在会话开始和需要时主动带回；你可以评价、纠错、处理过时和冲突，让下一次召回更贴近当前对话。
 
-### 从 GitHub 安装（无需 npm）
+## 一眼看懂
 
+| 它会记住 | 它什么时候想起 | 你怎么控制 |
+|---|---|---|
+| 偏好、项目约定、决策、已知坑、任务状态 | 新会话注入；首轮主动召回；工具失败提示；`memory` 工具检索 | 评价召回结果；在面板里编辑/归档/复核；处理冲突和过期 |
+
+## 前置条件
+
+| 要求 | 说明 |
+|---|---|
+| **DeepSeek Harness 0.2.x** | 当前在 `0.2.2-rc.1` 上验证 |
+| **Node.js ≥ 22.5** | 使用 Node 内置 `node:sqlite`；没有 native 依赖 |
+| **pnpm** | 命令行 `dsh plugin add` 需要；用 Plugin Manager 安装可跳过 |
+| **OpenAI 兼容的 Embedding 服务** | 需要 `/embeddings` 接口、模型名、维度；API Key 可选 |
+| **LLM（可选）** | 自动抽取/准入/冲突判定用；留空时回退到 DSH 默认模型，不需要额外 Key |
+| **本机可写目录** | 默认 `~/.dsh/memory`，备份在 `~/.dsh/memory/backups` |
+
+> 插件本身没有 npm 运行时依赖；模型地址和 API Key 默认都为空，安装后在设置页填写。
+>
+> 桌面端使用同一套 Host/Web 架构，但需要桌面端内置 Node ≥ 22.5；目前尚未在桌面端实机验证。
+
+## 快速上手（约 5 分钟）
+
+### 1. 安装
+
+从 GitHub 安装：
+
+```bash
+dsh plugin --profile web add github:yeweimei/dsh-memory-harness
 ```
-dsh plugin --profile <profile> add github:yeweimei/dsh-memory-harness
+
+或从 [Releases](https://github.com/yeweimei/dsh-memory-harness/releases) 下载 `dsh-memory-harness-0.19.2.tgz`：
+
+```bash
+dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.19.2.tgz"
 ```
 
-或者下载 GitHub Release 里的 `dsh-memory-harness-0.19.2.tgz`，再本地安装：
+也可以使用 DSH 的 Plugin Manager 安装 `dsh-memory-harness`。
 
-```
-dsh plugin --profile <profile> add "file:/绝对路径/dsh-memory-harness-0.19.0.tgz"
-```
+### 2. 刷新或重启 DSH
 
-### 通过 Plugin Manager 安装
+让插件 Host/Client 重新加载，然后打开 **设置 → 记忆**。
 
-```
-plugin_manager install_bundle  target: dsh-memory-harness   # 或本地目录 / link: 路径
-```
+### 3. 配置 Embedding
 
-或清单式安装：
+填你自己的：
 
-```jsonc
-// profile package.json
-"dependencies": { "dsh-memory-harness": "^0.19.2" },
-"dsh": { "profile": { "bundles": [/* ... */, "dsh-memory-harness"] } }
-```
+- Base URL，例如 `https://embedding.example.com/v1`（输入框里只是示例）
+- 模型名
+- 维度
+- API Key（如果服务需要）
 
-装完打开 **设置 → 记忆**，填入自己的 embedding 服务地址、模型、维度和 API Key 即可；包默认不内置任何模型/地址，输入框 placeholder 只是填写示例。不需要改 YAML。
+保存后设置即时生效；面板会显示 embedding 健康状态。Embedding 没配好时，插件仍能保存记忆，只是暂时没有语义向量，检索会退回关键词。
+
+### 4. 配置 LLM（可选）
+
+自动抽取、自动准入、冲突判定需要 LLM：
+
+- **不填**：使用 DSH 当前默认模型；
+- **填 OpenAI 兼容 endpoint + model**：使用你指定的快速模型。
+
+不想自动捕获可以只使用手动 `memory` 工具和 `/remember`。
+
+### 5. 开始使用
+
+- 侧栏打开「记忆」面板，浏览、搜索、编辑、归档记忆；
+- 直接对 Agent 说“记住……”或使用 `/remember ...`；
+- Agent 会通过 `memory` 工具主动保存和检索；
+- 首轮对话默认会做一次上下文主动召回，出现评价浮层时可以给反馈。
+
+### 6. 确认状态
+
+在「诊断」标签确认：
+
+- embedding 正常；
+- `待补向量` 为 0（如果不是，见下面 FAQ）；
+- 最近事件和召回质量有数据。
+
+## 日常怎么用
+
+- **记东西**：让 Agent 调用 `memory action=save`，或用户执行 `/remember`；不需要手动整理格式。
+- **找东西**：Agent 自动检索；你也可以 `/memory search <关键词>` 或在侧栏面板搜索。
+- **评价召回**：召回浮层分「本次相关」和「记忆本身」两轴；提交后 10 秒内可撤销。
+- **处理问题记忆**：面板「复核」里可以处理过时、错误、重复和冲突；「矛盾」默认交给你决定，不会静默删除。
+- **有效期**：保存时带 `validUntil` 的记忆到期后会进入复核，而不是直接消失。
+- **备份/迁移**：面板/诊断支持备份和 JSON 导出；数据始终在本机。
+
+## 常见问题
+
+**“待补向量”很多，是不是记忆丢了？**  
+不是。向量存在数据库里；这个数字表示内存索引暂时没加载或模型/维度不匹配。先确认 embedding 设置；模型没变时可以在诊断页点「重建向量索引」。
+
+**没有配置 LLM 会怎样？**  
+抽取、自动准入和冲突判定会回退到 DSH 默认模型；默认模型不可用时，规则捕获、手动保存、失败提示仍然可用。
+
+**API Key 会写进数据库或仓库吗？**  
+不会。Key 存在 Harness 凭证记录里；配置文件和数据库都不保存明文 Key。
+
+**会给记忆库上传聊天记录吗？**  
+不会整段上传。语义检索只发送 query 到 embedding 服务；冲突判定在启用时会把新/旧记忆和最近对话片段发送到你配置的 LLM（或 DSH 默认模型）。
+
+**数据在哪里？**  
+默认 `~/.dsh/memory/memory.db`；备份在 `~/.dsh/memory/backups/`。
+
+## 进阶功能
+
+以下内容面向想深入了解或自行扩展的用户；日常使用不需要读完。
 
 ## 自动捕获与 LLM 自动准入
 
