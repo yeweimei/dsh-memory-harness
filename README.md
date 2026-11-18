@@ -22,7 +22,7 @@ DeepSeek Harness 的跨会话持久记忆插件：**按需捕获 + 规则/LLM �
 dsh plugin --profile <profile> add github:yeweimei/dsh-memory-harness
 ```
 
-或者下载 GitHub Release 里的 `dsh-memory-harness-0.19.1.tgz`，再本地安装：
+或者下载 GitHub Release 里的 `dsh-memory-harness-0.19.2.tgz`，再本地安装：
 
 ```
 dsh plugin --profile <profile> add "file:/绝对路径/dsh-memory-harness-0.19.0.tgz"
@@ -38,7 +38,7 @@ plugin_manager install_bundle  target: dsh-memory-harness   # 或本地目录 / 
 
 ```jsonc
 // profile package.json
-"dependencies": { "dsh-memory-harness": "^0.19.1" },
+"dependencies": { "dsh-memory-harness": "^0.19.2" },
 "dsh": { "profile": { "bundles": [/* ... */, "dsh-memory-harness"] } }
 ```
 
@@ -335,7 +335,7 @@ memory action=stats
 - 嵌入 API Key 记录是明文 JSON（Harness 本地凭证文件，0600）；更严格场景可接 OS keychain。
 - 设置页/记忆面板通过包内私有 Remote 服务访问，仅支持同源已认证的 Web 页面。**不要自己 `connection.rpc.intercept('/api', …)`**：该通道全进程只允许一个 interceptor，已被 stock gateway 占用，第二个注册会在启动期 fatal。
 - `node:sqlite` 目前是 Node 的实验 API（会打印 ExperimentalWarning），随 Node 版本升级需回归测试。
-- CI 目前覆盖 Node 单元/集成测试与打包检查；浏览器端到端 smoke 仍需在真实 GUI 上手动执行（`test/manual/`）。
+- CI 目前覆盖 Node 单元/集成测试与打包检查；浏览器端到端 smoke 仍需在真实 GUI 上手动执行。
 - LLM 冲突判定的自动 supersede 依赖模型输出和证据，极端情况下仍可能误判；revision/回滚与人工复核是安全网。
 
 ## 开发与发布
@@ -343,10 +343,7 @@ memory action=stats
 ```bash
 npm test                  # node --test test/*.test.mjs
 npm run pack:check        # npm pack --dry-run
-npm run test:manual       # 需要当前 DSH GUI 在跑
-
-# 不打开浏览器验证设置页 RPC（读取本机 browser-session 凭据签发临时 cookie）：
-DSH_GUI_ORIGIN=<当前 GUI 的 origin> node test/manual/verify-rpc.mjs
+# 浏览器端手动验证（不提交、不包含在 npm 包中）：在真实 DSH GUI 操作设置页/面板/召回浮层
 ```
 
 CI：`.github/workflows/ci.yml` 在 Node 22 上跑单元/集成测试和 `npm pack --dry-run`。

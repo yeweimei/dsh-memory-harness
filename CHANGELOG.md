@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.2
+
+- Remove the credential-reading manual RPC verifier from the public repository so the plugin-market security scan has no credential-access surface.
+- Keep browser verification as a documented manual GUI step only.
+
 ## 0.19.1
 
 - Fix vector index invalidation after embedding settings changes: re-index persisted vectors when they still match the configured model/dimensions, and only mark mismatched records as pending.
@@ -11,7 +16,7 @@
 Release preparation.
 
 - Add CI workflow for syntax checks, tests and `npm pack --dry-run`.
-- Add npm scripts (`test`, `pack:check`, `test:manual`), `engines.dsh`, changelog and release checklist.
+- Add npm scripts (`test`, `pack:check`), `engines.dsh`, changelog and release checklist.
 - Update README to schema v7, LLM conflict judgment, proactive recall, data/privacy notes and known limitations.
 - Add repository `.gitignore` rules so local databases, backups and tarballs are never committed.
 - Add npm repository/homepage/bugs/author metadata for `yeweimei/dsh-memory-harness`.
