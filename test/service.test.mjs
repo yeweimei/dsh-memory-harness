@@ -330,6 +330,30 @@ test('observedAt records the source time and filters search/list by time', async
   assert.equal(listed.memories.length, 1)
 })
 
+test('getMemory returns full text and graph/agreement RPC data is shaped for the UI', async () => {
+  const { service, store } = await makeService()
+  const saved = await service.save({ text: '完整详情测试记忆。', kind: 'knowledge' }, session)
+  const detail = service.getMemory(saved.id)
+  assert.equal(detail.text, '完整详情测试记忆。')
+  store.graphSnapshot = () => ({ nodes: [{ id: 'mem:m1', kind: 'memory', ref: 'm1', memoryKind: 'knowledge', label: 'x' }], edges: [], truncated: false })
+  const graph = service.graphView({ limit: 10 })
+  assert.equal(graph.nodes[0].ref, 'm1')
+  assert.equal(graph.truncated, false)
+  store.autoRelevanceSince = () => [
+    { recallId: 'r1', memoryId: 'm1', score: 0.9, at: Date.now() },
+    { recallId: 'r1', memoryId: 'm2', score: 0.2, at: Date.now() },
+  ]
+  store.ratingsSince = () => [
+    { recallId: 'r1', memoryId: 'm1', rating: 'very_relevant', axis: 'relevance', ratingSource: 'explicit' },
+    { recallId: 'r1', memoryId: 'm2', rating: 'irrelevant', axis: 'relevance', ratingSource: 'explicit' },
+  ]
+  const agreement = service.jevAgreement({ days: 30 })
+  assert.equal(agreement.samples, 2)
+  assert.equal(agreement.agreement, 1)
+  assert.equal(agreement.confusion.tp, 1)
+  assert.equal(agreement.confusion.tn, 1)
+})
+
 test('an exact duplicate updates the existing record instead of adding one', async () => {
   const { service } = await makeService()
   const first = await service.save({ text: '用户偏好中文回答。', kind: 'preference' }, session)

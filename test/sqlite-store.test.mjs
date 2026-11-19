@@ -79,6 +79,23 @@ test('observedAt persists across reopen', async () => {
   }
 })
 
+test('graphSnapshot returns live memory nodes and hub edges', async () => {
+  const dir = tempDir()
+  try {
+    const store = new SqliteStore({ dataDir: dir })
+    await store.open()
+    const a = record({ id: 'm_g1', text: 'graph one', scope: 'workspace', workspace: '/w', tags: ['g'] })
+    const b = record({ id: 'm_g2', text: 'graph two', scope: 'workspace', workspace: '/w', tags: ['g'] })
+    await store.put(a); await store.setGraphForMemory(a)
+    await store.put(b); await store.setGraphForMemory(b)
+    const snapshot = store.graphSnapshot({ limit: 50 })
+    assert.equal(snapshot.nodes.filter((node) => node.kind === 'memory').length, 2)
+    assert.ok(snapshot.edges.some((edge) => edge.relation === 'topic'))
+    assert.equal(snapshot.truncated, false)
+    await store.close()
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
 test('SQLite store migrates a v1 database to the v2 columns', async () => {
   const dir = tempDir()
   try {

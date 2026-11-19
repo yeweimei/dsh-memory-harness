@@ -109,7 +109,82 @@ window.__ModuleLoader__.load({
 .dsh-memory-button.danger { color: var(--dsw-alias-state-error-primary); }
 .dsh-memory-button:disabled { opacity: 0.55; cursor: default; }
 .dsh-memory-list { display: flex; flex-direction: column; gap: 8px; }
-.dsh-memory-row { border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; padding: 10px 12px; background: var(--dsw-alias-bg-layer-1); display: flex; flex-direction: column; gap: 6px; }
+.dsh-memory-row { position: relative; overflow: hidden; border: 1px solid var(--dsw-alias-border-l1); border-radius: 12px; padding: 11px 13px 11px 16px; background: linear-gradient(180deg, var(--dsw-alias-bg-layer-1), color-mix(in srgb, var(--dsw-alias-bg-layer-2) 45%, var(--dsw-alias-bg-layer-1))); display: flex; flex-direction: column; gap: 7px; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.dsh-memory-row::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--dsw-alias-label-tertiary); opacity: .9; }
+.dsh-memory-row:hover { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 38%, var(--dsw-alias-border-l1)); box-shadow: 0 6px 20px color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, transparent); transform: translateY(-1px); }
+.dsh-memory-row:hover .dsh-memory-actions { opacity: 1; }
+.dsh-memory-row.kind-pitfall::before { background: var(--dsw-alias-state-error-primary); }
+.dsh-memory-row.kind-decision::before { background: var(--dsw-alias-brand-primary); }
+.dsh-memory-row.kind-preference::before { background: var(--dsw-alias-state-success-primary, #2e7d32); }
+.dsh-memory-row.kind-project::before { background: var(--dsw-alias-state-warn-primary, #c47f00); }
+.dsh-memory-row.kind-knowledge::before { background: #6b7cff; }
+.dsh-memory-row.kind-task::before { background: #9b6bff; }
+.dsh-memory-signals { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dsh-memory-dots { display: inline-flex; gap: 3px; align-items: center; }
+.dsh-memory-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dsw-alias-border-l2); }
+.dsh-memory-dot.on { background: var(--dsw-alias-brand-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent); }
+.dsh-memory-quality { display: inline-flex; align-items: center; gap: 6px; color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.dsh-memory-quality-bar { width: 64px; height: 4px; border-radius: 999px; background: var(--dsw-alias-bg-layer-3); overflow: hidden; }
+.dsh-memory-quality-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--dsw-alias-brand-primary), color-mix(in srgb, var(--dsw-alias-brand-primary) 45%, #7b61ff)); transition: width .3s ease; }
+.dsh-memory-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.dsh-memory-kpi { border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; padding: 9px 11px; background: linear-gradient(135deg, var(--dsw-alias-bg-layer-1), color-mix(in srgb, var(--dsw-alias-bg-layer-2) 60%, transparent)); display: flex; flex-direction: column; gap: 2px; }
+.dsh-memory-kpi-label { color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.dsh-memory-kpi-value { font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.dsh-memory-detail-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.28); display: flex; justify-content: flex-end; }
+.dsh-memory-detail-drawer { width: min(560px, 100%); height: 100%; overflow: auto; background: var(--dsw-alias-bg-layer-1); border-left: 1px solid var(--dsw-alias-border-l1); box-shadow: -18px 0 60px rgba(0,0,0,.25); padding: 18px; display: flex; flex-direction: column; gap: 12px; animation: dsh-memory-drawer-in .2s cubic-bezier(.2,.8,.3,1); }
+@keyframes dsh-memory-drawer-in { from { transform: translateX(24px); opacity: .4; } to { transform: translateX(0); opacity: 1; } }
+.dsh-memory-detail-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.dsh-memory-detail-title { font-size: 15px; font-weight: 650; }
+.dsh-memory-detail-meta { display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 6px 10px; font-size: 12px; }
+.dsh-memory-detail-meta dt { color: var(--dsw-alias-label-secondary); }
+.dsh-memory-detail-meta dd { margin: 0; word-break: break-word; }
+.dsh-memory-detail-text { white-space: pre-wrap; word-break: break-word; font-size: 14px; line-height: 1.6; padding: 12px; border-radius: 10px; background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l1); }
+.dsh-memory-detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--dsw-alias-border-l1); padding-bottom: 7px; }
+.dsh-memory-detail-history { display: flex; flex-direction: column; gap: 10px; }
+.dsh-memory-detail-history-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.dsh-memory-detail-revisions { display: flex; flex-direction: column; gap: 7px; }
+.dsh-memory-detail-revision { border: 1px solid var(--dsw-alias-border-l1); border-radius: 9px; padding: 8px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 3px 8px; align-items: center; }
+.dsh-memory-detail-revision.selected { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 45%, var(--dsw-alias-border-l1)); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 5%, var(--dsw-alias-bg-layer-2)); }
+.dsh-memory-detail-revision-time { color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.dsh-memory-detail-revision-preview { grid-column: 1 / -1; color: var(--dsw-alias-label-secondary); font-size: 11px; white-space: pre-wrap; word-break: break-word; }
+.dsh-memory-detail-revision > .dsh-memory-button { grid-column: 2; grid-row: 1; }
+.dsh-memory-detail-compare { border-top: 1px solid var(--dsw-alias-border-l1); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.dsh-memory-detail-actions { display: flex; gap: 8px; flex-wrap: wrap; position: sticky; bottom: 0; padding-top: 8px; background: var(--dsw-alias-bg-layer-1); }
+.dsh-memory-actions { opacity: .72; transition: opacity .16s ease; }
+@media (max-width: 720px) { .dsh-memory-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+.dsh-memory-row { animation: dsh-memory-rise .18s ease both; }
+@keyframes dsh-memory-rise { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+.dsh-memory-skeleton { border: 1px solid var(--dsw-alias-border-l1); border-radius: 12px; padding: 13px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--dsw-alias-bg-layer-1); }
+.dsh-memory-skeleton-line { height: 10px; border-radius: 999px; background: linear-gradient(90deg, var(--dsw-alias-bg-layer-3), var(--dsw-alias-bg-layer-2), var(--dsw-alias-bg-layer-3)); background-size: 200% 100%; animation: dsh-memory-shimmer 1.2s linear infinite; }
+.dsh-memory-skeleton-line.short { width: 35%; }
+.dsh-memory-skeleton-line.medium { width: 68%; }
+@keyframes dsh-memory-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.dsh-memory-timeline { display: flex; flex-direction: column; gap: 12px; }
+.dsh-memory-timeline-group { display: grid; grid-template-columns: 92px minmax(0,1fr); gap: 12px; }
+.dsh-memory-timeline-date { color: var(--dsw-alias-label-secondary); font-size: 11px; padding-top: 8px; font-variant-numeric: tabular-nums; }
+.dsh-memory-timeline-items { display: flex; flex-direction: column; gap: 8px; border-left: 1px solid var(--dsw-alias-border-l1); padding-left: 12px; position: relative; }
+.dsh-memory-timeline-item { position: relative; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; padding: 9px 11px; background: var(--dsw-alias-bg-layer-1); display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: border-color .15s ease, transform .15s ease; }
+.dsh-memory-timeline-item::before { content: ""; position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--dsw-alias-brand-primary); left: -16px; top: 14px; box-shadow: 0 0 0 3px var(--dsw-alias-bg-layer-2); }
+.dsh-memory-timeline-item:hover { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 38%, var(--dsw-alias-border-l1)); transform: translateX(1px); }
+.dsh-memory-timeline-item .dsh-memory-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.dsh-memory-toolbar-secondary { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.dsh-memory-segment { display: inline-flex; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; padding: 2px; gap: 2px; }
+.dsh-memory-segment button { border: 0; background: transparent; color: var(--dsw-alias-label-secondary); padding: 4px 9px; border-radius: 6px; cursor: pointer; font: inherit; font-size: 11px; }
+.dsh-memory-segment button.selected { background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+@media (prefers-reduced-motion: reduce) { .dsh-memory-row, .dsh-memory-skeleton-line { animation: none; } }
+.dsh-memory-graph { border: 1px solid var(--dsw-alias-border-l1); border-radius: 12px; background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--dsw-alias-brand-primary) 7%, var(--dsw-alias-bg-layer-1)), var(--dsw-alias-bg-layer-1) 65%); overflow: hidden; }
+.dsh-memory-graph svg { display: block; width: 100%; height: auto; min-height: 360px; }
+.dsh-memory-graph-edge { stroke: color-mix(in srgb, var(--dsw-alias-label-tertiary) 55%, transparent); stroke-width: 1; }
+.dsh-memory-graph-node { cursor: pointer; transition: filter .15s ease, opacity .15s ease; }
+.dsh-memory-graph-node:hover { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--dsw-alias-brand-primary) 55%, transparent)); }
+.dsh-memory-graph-node text { font-size: 10px; fill: var(--dsw-alias-label-secondary); pointer-events: none; }
+.dsh-memory-graph-legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 9px 12px; border-top: 1px solid var(--dsw-alias-border-l1); color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.dsh-memory-graph-legend span { display: inline-flex; gap: 5px; align-items: center; }
+.dsh-memory-graph-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.dsh-memory-agreement { border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.dsh-memory-agreement-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
+.dsh-memory-agreement-bar { height: 5px; border-radius: 999px; background: var(--dsw-alias-bg-layer-3); overflow: hidden; flex: 1; }
+.dsh-memory-agreement-fill { height: 100%; background: linear-gradient(90deg, var(--dsw-alias-brand-primary), color-mix(in srgb, var(--dsw-alias-brand-primary) 45%, #7b61ff)); }
 .dsh-memory-row-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .dsh-memory-text { margin: 0; white-space: pre-wrap; word-break: break-word; }
 .dsh-memory-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; color: var(--dsw-alias-label-secondary); font-size: 12px; }
@@ -130,7 +205,6 @@ window.__ModuleLoader__.load({
 .dsh-memory-section > :last-child { margin-bottom: 14px; }
 .dsh-memory-grid > .dsh-memory-banner, .dsh-memory-grid > .dsh-memory-meta, .dsh-memory-grid > .dsh-memory-actions-row, .dsh-memory-grid > .dsh-memory-hint { grid-column: 1 / -1; }
 .dsh-memory-savebar { position: sticky; bottom: 0; z-index: 5; display: flex; gap: 8px; align-items: center; justify-content: flex-end; padding: 10px 0; background: linear-gradient(to top, var(--dsw-alias-bg-base) 70%, transparent); }
-.dsh-memory-more { display: inline-block; }
 .dsh-memory-warning { font-size: 12px; color: var(--dsw-alias-state-warn-primary); }
 .dsh-memory-warning.error { color: var(--dsw-alias-state-error-primary); }
 .dsh-memory-warning.info { color: var(--dsw-alias-label-secondary); }
@@ -221,6 +295,9 @@ window.__ModuleLoader__.load({
 .dsh-memory-check input[type="checkbox"]:active::after { width: 19px; }
 .dsh-memory-check input[type="checkbox"]:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--dsw-alias-brand-primary) 28%, transparent); }
 .dsh-memory-check input[type="checkbox"]:disabled { opacity: .45; cursor: default; }
+.dsh-memory-compare-check input[type="checkbox"] { appearance: auto; -webkit-appearance: auto; width: 15px; height: 15px; flex: 0 0 15px; border-radius: 3px; background: initial; border: initial; }
+.dsh-memory-compare-check input[type="checkbox"]::after { display: none; }
+.dsh-memory-compare-check input[type="checkbox"]:checked { background: initial; border-color: initial; }
 .dsh-memory-grid > .dsh-memory-advanced, .dsh-memory-grid > .dsh-memory-hint { grid-column: 1 / -1; }
 .dsh-memory-actions-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .dsh-memory-tabs { display: inline-flex; gap: 2px; align-items: center; flex-wrap: wrap; padding: 3px; border-radius: 10px; background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l1); }
@@ -437,6 +514,18 @@ window.__ModuleLoader__.load({
 
       history(id, limit) {
         return this.call('history', { id, limit })
+      }
+
+      getMemory(id) {
+        return this.call('getMemory', { id })
+      }
+
+      graphView(limit) {
+        return this.call('graphView', { limit })
+      }
+
+      jevAgreement(days) {
+        return this.call('jevAgreement', { days })
       }
 
       exportData(args) {
@@ -848,11 +937,10 @@ window.__ModuleLoader__.load({
       const t = props.t
       const mode = props.mode ?? 'active'
       const editing = props.editingId === memory.id
-      const confirming = props.confirmingId === memory.id
       const busy = props.busyId === memory.id
       return h(
         'div',
-        { className: 'dsh-memory-row' },
+        { className: `dsh-memory-row dsh-memory-kind-${memory.kind}` },
         h(
           'div',
           { className: 'dsh-memory-row-top' },
@@ -897,163 +985,53 @@ window.__ModuleLoader__.load({
                   typeof memory.qualityScore === 'number' && memory.qualityScore !== 0
                     ? h('span', { className: 'dsh-memory-badge' }, `q ${memory.qualityScore.toFixed(2)}`)
                     : null,
-                  editing
-                    ? h(
-                        React.Fragment,
-                        null,
-                        h(
-                          'button',
-                          {
-                            type: 'button',
-                            className: 'dsh-memory-button primary',
-                            disabled: busy,
-                            onClick: () => props.onSaveEdit(memory.id, props.editText),
-                          },
-                          t('Save', '保存'),
-                        ),
-                        h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: props.onCancelEdit }, t('Cancel', '取消')),
-                      )
-                    : h(
-                        React.Fragment,
-                        null,
-                        h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onStartEdit(memory) }, t('Edit', '编辑')),
-                        h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onHistory(memory.id) }, t('History', '历史')),
-                        h(
-                          'button',
-                          { type: 'button', className: 'dsh-memory-button primary', disabled: busy, onClick: () => props.onKeep(memory.id) },
-                          t('Keep', '保留'),
-                        ),
-                        h(
-                          'button',
-                          { type: 'button', className: 'dsh-memory-button danger', disabled: busy, onClick: () => props.onArchive(memory.id) },
-                          t('Archive', '归档'),
-                        ),
-                      ),
                 )
-              : mode !== 'active'
+              : mode === 'candidate'
+                ? h('span', { className: 'dsh-memory-badge warn' }, `${t('candidate', '候选')}${typeof memory.details?.confidence === 'number' ? ` ${memory.details.confidence}` : ''}`)
+                : mode !== 'active'
+                  ? h('span', { className: 'dsh-memory-badge' }, labelOf(STATUS_LABELS, memory.status, t))
+                  : null,
+            h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onDetail(memory.id) }, t('Detail', '详情')),
+            editing
               ? h(
                   React.Fragment,
                   null,
-                  h(
-                    'span',
-                    { className: 'dsh-memory-badge warn' },
-                    `${t('candidate', '候选')}${typeof memory.details?.confidence === 'number' ? ` ${memory.details.confidence}` : ''}`,
-                  ),
-                  mode === 'candidate'
-                    ? h(
-                        React.Fragment,
-                        null,
-                        h(
-                          'button',
-                          {
-                            type: 'button',
-                            className: 'dsh-memory-button',
-                            disabled: busy,
-                            onClick: () => props.onStartEdit(memory),
-                          },
-                          t('Edit', '编辑'),
-                        ),
-                        h(
-                          'button',
-                          { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onHistory(memory.id) },
-                          t('History', '历史'),
-                        ),
-                        h(
-                          'button',
-                          {
-                            type: 'button',
-                            className: 'dsh-memory-button primary',
-                            disabled: busy,
-                            onClick: () => props.onConfirm(memory.id),
-                          },
-                          t('Accept', '接受'),
-                        ),
-                        h(
-                          'button',
-                          { type: 'button', className: 'dsh-memory-button danger', disabled: busy, onClick: () => props.onDismiss(memory.id) },
-                          t('Ignore', '忽略'),
-                        ),
-                      )
-                    : h(
-                        React.Fragment,
-                        null,
-                        h('span', { className: 'dsh-memory-badge' }, labelOf(STATUS_LABELS, memory.status, t)),
-                        h(
-                          'button',
-                          { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onHistory(memory.id) },
-                          t('History', '历史'),
-                        ),
-                        h(
-                          'button',
-                          { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onRestore(memory.id) },
-                          t('Restore', '恢复'),
-                        ),
-                      ),
+                  h('button', { type: 'button', className: 'dsh-memory-button primary', disabled: busy, onClick: () => props.onSaveEdit(memory.id, props.editText) }, t('Save', '保存')),
+                  h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: props.onCancelEdit }, t('Cancel', '取消')),
                 )
-              : editing
-              ? h(
-                  React.Fragment,
-                  null,
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dsh-memory-button primary',
-                      disabled: busy,
-                      onClick: () => props.onSaveEdit(memory.id, props.editText),
-                    },
-                    t('Save', '保存'),
-                  ),
-                  h(
-                    'button',
-                    { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: props.onCancelEdit },
-                    t('Cancel', '取消'),
-                  ),
-                )
-              : h(
-                  React.Fragment,
-                  null,
-                  h('button', { type: 'button', className: 'dsh-memory-button', onClick: () => props.onStartEdit(memory) }, t('Edit', '编辑')),
-                  h('button', { type: 'button', className: 'dsh-memory-button', onClick: () => props.onHistory(memory.id) }, t('History', '历史')),
-                  confirming
-                    ? h(
-                        React.Fragment,
-                        null,
-                        h(
-                          'button',
-                          {
-                            type: 'button',
-                            className: 'dsh-memory-button danger',
-                            disabled: busy,
-                            onClick: () => props.onDelete(memory.id),
-                          },
-                          t('Confirm delete', '确认删除'),
-                        ),
-                        h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onCancelDelete }, t('Cancel', '取消')),
-                      )
-                    : h(
-                        'details',
-                        { className: 'dsh-memory-more' },
-                        h('summary', { className: 'dsh-memory-button' }, t('More', '更多')),
-                        h(
-                          'div',
-                          { className: 'dsh-memory-menu-panel' },
-                          h(
-                            'button',
-                            { type: 'button', className: 'dsh-memory-menu-item', disabled: busy, onClick: (event) => { event.currentTarget.closest('details')?.removeAttribute('open'); props.onArchive(memory.id) } },
-                            t('Archive', '归档'),
-                            h('small', null, t('move to the cold tier; restore later', '移到冷数据层，可恢复')),
-                          ),
-                          h(
-                            'button',
-                            { type: 'button', className: 'dsh-memory-menu-item danger', onClick: (event) => { event.currentTarget.closest('details')?.removeAttribute('open'); props.onAskDelete(memory.id) } },
-                            t('Delete', '删除'),
-                            h('small', null, t('permanent; a revision snapshot is kept', '永久删除，但保留修订快照')),
-                          ),
-                        ),
-                      ),
-                ),
+              : mode === 'review'
+                ? h(
+                    React.Fragment,
+                    null,
+                    h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onStartEdit(memory) }, t('Edit', '编辑')),
+                    h('button', { type: 'button', className: 'dsh-memory-button primary', disabled: busy, onClick: () => props.onKeep(memory.id) }, t('Keep', '保留')),
+                    h('button', { type: 'button', className: 'dsh-memory-button danger', disabled: busy, onClick: () => props.onArchive(memory.id) }, t('Archive', '归档')),
+                  )
+                : mode === 'candidate'
+                  ? h(
+                      React.Fragment,
+                      null,
+                      h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onStartEdit(memory) }, t('Edit', '编辑')),
+                      h('button', { type: 'button', className: 'dsh-memory-button primary', disabled: busy, onClick: () => props.onConfirm(memory.id) }, t('Accept', '接受')),
+                      h('button', { type: 'button', className: 'dsh-memory-button danger', disabled: busy, onClick: () => props.onDismiss(memory.id) }, t('Ignore', '忽略')),
+                    )
+                  : mode !== 'active'
+                    ? h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onRestore(memory.id) }, t('Restore', '恢复'))
+                    : h('button', { type: 'button', className: 'dsh-memory-button', disabled: busy, onClick: () => props.onStartEdit(memory) }, t('Edit', '编辑')),
           ),
+        ),
+        h(
+          'div',
+          { className: 'dsh-memory-signals' },
+          h(ImportanceDots, { value: memory.importance ?? 3 }),
+          typeof memory.qualityScore === 'number'
+            ? h('span', { className: 'dsh-memory-quality' },
+                t('quality', '质量'),
+                h('span', { className: 'dsh-memory-quality-bar' }, h('span', { className: 'dsh-memory-quality-fill', style: { width: `${Math.max(0, Math.min(100, (memory.qualityScore + 1) * 50))}%` } })),
+                memory.qualityScore.toFixed(2),
+              )
+            : null,
+          memory.match !== undefined ? h('span', { className: 'dsh-memory-badge' }, memory.match) : null,
         ),
         editing
           ? h('textarea', {
@@ -1105,194 +1083,6 @@ window.__ModuleLoader__.load({
                 h('button', { type: 'button', onClick: () => props.onFeedback(memory.id, 'relevant') }, t('Relevant', '相关')),
                 h('button', { type: 'button', onClick: () => props.onFeedback(memory.id, 'irrelevant') }, t('Irrelevant', '不相关')),
               )
-            : null,
-        ),
-      )
-    }
-
-    function HistoryPanel(props) {
-      const t = props.t
-      const items = Array.isArray(props.items) ? props.items : []
-      const latestRevision = items.find((revision) => revision.snapshot !== null && revision.snapshot !== undefined)?.revision ?? null
-      return h(
-        'div',
-        { className: 'dsh-memory-history' },
-        h(
-          'div',
-          { className: 'dsh-memory-row-top' },
-          h('strong', null, t('Revision history', '修订历史')),
-          latestRevision !== null
-            ? h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-memory-button',
-                  disabled: props.busy,
-                  onClick: () => props.onDiff(latestRevision),
-                },
-                t('Compare versions', '对比版本'),
-              )
-            : null,
-          h(
-            'button',
-            { type: 'button', className: 'dsh-memory-button', onClick: props.onClose },
-            t('Close', '关闭'),
-          ),
-        ),
-        items.length === 0
-          ? h('div', { className: 'dsh-memory-meta' }, t('No revisions recorded.', '还没有修订记录。'))
-          : items.map((revision) =>
-              h(
-                'div',
-                { key: revision.seq ?? `${revision.revision}-${revision.action}`, className: 'dsh-memory-history-row' },
-                h(
-                  'div',
-                  { className: 'dsh-memory-meta' },
-                  h('span', null, `r${revision.revision} ${revision.action}/${revision.actor}`),
-                  h('span', null, new Date(revision.createdAt).toLocaleString()),
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dsh-memory-button',
-                      disabled: props.busy,
-                      onClick: () => props.onDiff(revision.revision),
-                    },
-                    t('Compare', '对比'),
-                  ),
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dsh-memory-button',
-                      disabled: props.busy,
-                      onClick: () => props.onRollback(revision.revision),
-                    },
-                    t('Roll back', '回滚'),
-                  ),
-                ),
-                revision.snapshot !== null && revision.snapshot !== undefined && typeof revision.snapshot.text === 'string'
-                  ? h('div', { className: 'dsh-memory-history-text' }, revision.snapshot.text.slice(0, 180))
-                  : null,
-              ),
-            ),
-        props.compareRevision !== null && props.compareRevision !== undefined
-          ? h(DiffModal, {
-              key: `compare-${props.compareRevision}`,
-              memory: props.memory,
-              items,
-              t,
-              busy: props.busy,
-              initialRevision: props.compareRevision,
-              onClose: props.onDiffClose,
-              onRollback: props.onRollback,
-            })
-          : null,
-      )
-    }
-
-    function DiffModal(props) {
-      const t = props.t
-      const currentRevision = props.memory?.revision ?? 1
-      const byRevision = new Map()
-      for (const revision of props.items ?? []) {
-        if (revision.snapshot === null || revision.snapshot === undefined || typeof revision.snapshot.text !== 'string') continue
-        const existing = byRevision.get(revision.revision)
-        if (existing === undefined || (revision.seq ?? 0) > (existing.seq ?? 0)) byRevision.set(revision.revision, revision)
-      }
-      const revisions = [...byRevision.values()].sort((left, right) => left.revision - right.revision)
-      const [selected, setSelected] = useState(() => {
-        const initial = revisions.find((revision) => revision.revision === props.initialRevision)
-        return initial === undefined ? [] : [initial.revision]
-      })
-      const selectedRevisions = revisions
-        .filter((revision) => selected.includes(revision.revision))
-        .sort((left, right) => left.revision - right.revision)
-      const toggle = (revision) => {
-        setSelected((current) => {
-          if (current.includes(revision)) return current.filter((value) => value !== revision)
-          if (current.length >= 4) return current
-          return [...current, revision].sort((left, right) => left - right)
-        })
-      }
-      return h(
-        'div',
-        {
-          className: 'dsh-memory-diff-backdrop',
-          role: 'dialog',
-          'aria-modal': 'true',
-          onClick: props.onClose,
-        },
-        h(
-          'div',
-          {
-            className: 'dsh-memory-diff-modal',
-            onClick: (event) => event.stopPropagation(),
-          },
-          h(
-            'div',
-            { className: 'dsh-memory-diff-head' },
-            h('div', null,
-              h('div', { className: 'dsh-memory-diff-title' }, `${t('Compare versions', '版本对比')} · ${props.memory?.id ?? ''}`),
-              h('div', { className: 'dsh-memory-diff-meta' }, `${t('Current', '当前')} r${currentRevision} · ${t('select up to 4 old versions', '最多选择 4 个旧版本')}`),
-            ),
-            h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onClose }, t('Close', '关闭')),
-          ),
-          h(
-            'div',
-            { className: 'dsh-memory-diff-picker' },
-            h('span', { className: 'dsh-memory-diff-picker-label' }, t('Versions', '版本')),
-            ...revisions.map((revision) =>
-              h(
-                'label',
-                { key: `pick-${revision.seq ?? revision.revision}`, className: `dsh-memory-diff-picker-item${selected.includes(revision.revision) ? ' selected' : ''}` },
-                h('input', {
-                  type: 'checkbox',
-                  checked: selected.includes(revision.revision),
-                  onChange: () => toggle(revision.revision),
-                }),
-                h('span', null, `r${revision.revision} · ${revision.action}/${revision.actor}`),
-                h('small', null, new Date(revision.createdAt).toLocaleString()),
-              ),
-            ),
-            h('span', { className: 'dsh-memory-diff-picker-item current' }, `r${currentRevision} · ${t('Current', '当前')}`),
-          ),
-          h(
-            'div',
-            { className: 'dsh-memory-diff-columns' },
-            ...selectedRevisions.map((revision) =>
-              h(
-                'div',
-                { key: `pane-${revision.seq ?? revision.revision}`, className: 'dsh-memory-diff-pane' },
-                h('div', { className: 'dsh-memory-diff-pane-title' }, `r${revision.revision} · ${revision.action}/${revision.actor}`),
-                h('div', { className: 'dsh-memory-diff-pane-meta' }, new Date(revision.createdAt).toLocaleString()),
-                h('div', { className: 'dsh-memory-diff-text' }, revision.snapshot.text ?? ''),
-                h(
-                  'div',
-                  { className: 'dsh-memory-diff-pane-actions' },
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dsh-memory-button',
-                      disabled: props.busy,
-                      onClick: () => props.onRollback(revision.revision),
-                    },
-                    t('Roll back to this revision', '回滚到此版本'),
-                  ),
-                ),
-              ),
-            ),
-            h(
-              'div',
-              { className: 'dsh-memory-diff-pane current' },
-              h('div', { className: 'dsh-memory-diff-pane-title' }, `${t('Current', '当前版本')} · r${currentRevision}`),
-              h('div', { className: 'dsh-memory-diff-pane-meta' }, t('active record', '当前记录')),
-              h('div', { className: 'dsh-memory-diff-text' }, props.memory?.text ?? ''),
-            ),
-          ),
-          selectedRevisions.length === 0
-            ? h('div', { className: 'dsh-memory-diff-field' }, t('Select at least one old version above to compare.', '请选择至少一个旧版本进行对比。'))
             : null,
         ),
       )
@@ -1573,6 +1363,7 @@ window.__ModuleLoader__.load({
           h(BudgetBar, { label: t('calls', '调用次数'), value: report.budget?.calls ?? 0, max: report.budget?.limits?.maxExtractionsPerDay ?? 0 }),
           h(BudgetBar, { label: t('tokens', 'tokens'), value: report.budget?.tokens ?? 0, max: report.budget?.limits?.dailyTokenBudget ?? 0 }),
         ),
+        h(JevAgreementPanel, { agreement: props.agreement, t }),
         lastRuns.length > 0
           ? h(
               'div',
@@ -1613,6 +1404,396 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function ImportanceDots(props) {
+      return h(
+        'span',
+        { className: 'dsh-memory-dots', 'aria-label': `importance ${props.value}` },
+        ...[1, 2, 3, 4, 5].map((value) =>
+          h('span', { key: value, className: `dsh-memory-dot${value <= props.value ? ' on' : ''}` }),
+        ),
+      )
+    }
+
+    function MemoryKpis(props) {
+      const t = props.t
+      const stats = props.stats
+      const quality = props.quality
+      const accuracy = quality?.totals?.accuracy
+      const cards = [
+        [t('Active', '活跃'), stats?.activeCount ?? '—'],
+        [t('Pending', '待确认'), stats?.candidateCount ?? '—'],
+        [t('Review', '待复核'), stats?.reviewCount ?? '—'],
+        [t('Recall accuracy', '召回准确率'), typeof accuracy === 'number' ? `${Math.round(accuracy * 100)}%` : '—'],
+      ]
+      return h(
+        'div',
+        { className: 'dsh-memory-kpis' },
+        ...cards.map(([label, value]) =>
+          h('div', { key: label, className: 'dsh-memory-kpi' },
+            h('span', { className: 'dsh-memory-kpi-label' }, label),
+            h('span', { className: 'dsh-memory-kpi-value' }, value),
+          ),
+        ),
+      )
+    }
+
+    function MemoryGraph(props) {
+      const t = props.t
+      const graph = props.graph ?? { nodes: [], edges: [] }
+      const nodes = Array.isArray(graph.nodes) ? graph.nodes : []
+      const edges = Array.isArray(graph.edges) ? graph.edges : []
+      if (nodes.length === 0) return h('div', { className: 'dsh-memory-empty' }, t('No graph data yet. Save a few memories first.', '还没有图数据。先保存一些记忆。'))
+      const width = 900
+      const height = 520
+      const cx = width / 2
+      const cy = height / 2
+      const hubs = nodes.filter((node) => node.kind !== 'memory')
+      const memories = nodes.filter((node) => node.kind === 'memory')
+      const positions = new Map()
+      hubs.forEach((node, index) => {
+        const angle = (index / Math.max(1, hubs.length)) * Math.PI * 2
+        const radius = 50 + Math.min(90, hubs.length * 2)
+        positions.set(node.id, { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius })
+      })
+      memories.forEach((node, index) => {
+        const angle = (index / Math.max(1, memories.length)) * Math.PI * 2
+        positions.set(node.id, { x: cx + Math.cos(angle) * 205, y: cy + Math.sin(angle) * 205 })
+      })
+      const color = (node) => {
+        if (node.kind === 'project') return 'var(--dsw-alias-state-warn-primary, #c47f00)'
+        if (node.kind === 'error_signature') return 'var(--dsw-alias-state-error-primary)'
+        if (node.kind === 'topic') return '#6b7cff'
+        return { pitfall: 'var(--dsw-alias-state-error-primary)', decision: 'var(--dsw-alias-brand-primary)', preference: 'var(--dsw-alias-state-success-primary, #2e7d32)', project: 'var(--dsw-alias-state-warn-primary, #c47f00)', knowledge: '#6b7cff', task: '#9b6bff' }[node.memoryKind] ?? 'var(--dsw-alias-label-tertiary)'
+      }
+      return h(
+        'div',
+        { className: 'dsh-memory-graph' },
+        h(
+          'svg',
+          { viewBox: `0 0 ${width} ${height}`, role: 'img', 'aria-label': t('Memory association graph', '记忆关联图') },
+          ...edges.map((edge, index) => {
+            const from = positions.get(edge.src)
+            const to = positions.get(edge.dst)
+            if (from === undefined || to === undefined) return null
+            return h('line', { key: `edge-${index}`, className: 'dsh-memory-graph-edge', x1: from.x, y1: from.y, x2: to.x, y2: to.y })
+          }),
+          ...nodes.map((node) => {
+            const point = positions.get(node.id)
+            if (point === undefined) return null
+            const isMemory = node.kind === 'memory'
+            return h(
+              'g',
+              {
+                key: node.id,
+                className: 'dsh-memory-graph-node',
+                onClick: (event) => {
+                  event.stopPropagation()
+                  if (isMemory && node.ref) props.onDetail(node.ref)
+                },
+              },
+              h('circle', { cx: point.x, cy: point.y, r: isMemory ? 5 : 8, fill: color(node), opacity: isMemory ? 0.92 : 0.85 }),
+              h('title', null, node.label ?? node.id),
+              !isMemory && hubs.length <= 20
+                ? h('text', { x: point.x + 10, y: point.y + 3 }, String(node.label ?? '').slice(0, 18))
+                : null,
+            )
+          }),
+        ),
+        h(
+          'div',
+          { className: 'dsh-memory-graph-legend' },
+          h('span', null, h('i', { className: 'dsh-memory-graph-dot', style: { background: 'var(--dsw-alias-brand-primary)' } }), t('Memory', '记忆')),
+          h('span', null, h('i', { className: 'dsh-memory-graph-dot', style: { background: '#6b7cff' } }), t('Topic', '主题')),
+          h('span', null, h('i', { className: 'dsh-memory-graph-dot', style: { background: 'var(--dsw-alias-state-warn-primary, #c47f00)' } }), t('Project', '项目')),
+          h('span', null, h('i', { className: 'dsh-memory-graph-dot', style: { background: 'var(--dsw-alias-state-error-primary)' } }), t('Error signature', '错误签名')),
+          graph.truncated ? h('span', null, t('truncated', '已截断')) : null,
+        ),
+      )
+    }
+
+    function JevAgreementPanel(props) {
+      const t = props.t
+      const agreement = props.agreement
+      if (agreement === null || agreement === undefined) return h('div', { className: 'dsh-memory-hint' }, t('Loading Jev agreement…', '加载 Jev 一致性…'))
+      if (agreement.insufficient) return h('div', { className: 'dsh-memory-agreement' },
+        h('div', { className: 'dsh-memory-section-title' }, t('Jev vs manual', 'Jev 与人工一致率')),
+        h('div', { className: 'dsh-memory-hint' }, t(`${agreement.samples} matched ratings; need at least 3.`, `已匹配 ${agreement.samples} 条评分，至少需要 3 条。`)),
+      )
+      const confusion = agreement.confusion ?? {}
+      const ratings = Object.entries(agreement.byRating ?? {})
+      return h('div', { className: 'dsh-memory-agreement' },
+        h('div', { className: 'dsh-memory-section-title' }, t('Jev vs manual', 'Jev 与人工一致率')),
+        h('div', { className: 'dsh-memory-kpis' },
+          h('div', { className: 'dsh-memory-kpi' }, h('span', { className: 'dsh-memory-kpi-label' }, t('Samples', '样本')), h('span', { className: 'dsh-memory-kpi-value' }, agreement.samples)),
+          h('div', { className: 'dsh-memory-kpi' }, h('span', { className: 'dsh-memory-kpi-label' }, t('Agreement', '一致率')), h('span', { className: 'dsh-memory-kpi-value' }, agreement.agreement === null ? '—' : `${Math.round(agreement.agreement * 100)}%`)),
+        ),
+        h('div', { className: 'dsh-memory-hint' }, `TP ${confusion.tp ?? 0} · FP ${confusion.fp ?? 0} · TN ${confusion.tn ?? 0} · FN ${confusion.fn ?? 0}`),
+        ...ratings.map(([rating, entry]) => h('div', { key: rating, className: 'dsh-memory-agreement-row' },
+          h('span', null, `${rating} (${entry.count})`),
+          h('span', { className: 'dsh-memory-agreement-bar' }, h('span', { className: 'dsh-memory-agreement-fill', style: { width: `${Math.round(entry.mean * 100)}%` } })),
+          h('span', null, entry.mean.toFixed(2)),
+        )),
+      )
+    }
+
+    function MemoryDetailDrawer(props) {
+      const t = props.t
+      const client = props.client
+      const [current, setCurrent] = useState(props.memory)
+      const [confirmDelete, setConfirmDelete] = useState(false)
+      const [tab, setTab] = useState(props.initialTab === 'history' ? 'history' : 'overview')
+      const [history, setHistory] = useState([])
+      const [historyLoading, setHistoryLoading] = useState(false)
+      const [selected, setSelected] = useState([])
+      const [rollbackBusy, setRollbackBusy] = useState(false)
+      const date = (value) => typeof value === 'number' ? new Date(value).toLocaleString() : '—'
+      const quality = typeof current.qualityScore === 'number' ? current.qualityScore : null
+
+      useEffect(() => { setCurrent(props.memory) }, [props.memory])
+      useEffect(() => {
+        if (tab !== 'history') return
+        void loadHistory()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [tab])
+
+      async function loadHistory() {
+        setHistoryLoading(true)
+        try {
+          const result = await client.history(current.id, 30)
+          setHistory(Array.isArray(result?.revisions) ? result.revisions : [])
+        } catch (failure) {
+          props.onError?.(String(failure))
+        } finally {
+          setHistoryLoading(false)
+        }
+      }
+
+      async function rollback(revision) {
+        setRollbackBusy(true)
+        try {
+          await client.rollback(current.id, revision)
+          const [next, revisions] = await Promise.all([client.getMemory(current.id), client.history(current.id, 30)])
+          setCurrent(next)
+          setHistory(Array.isArray(revisions?.revisions) ? revisions.revisions : [])
+          setSelected([])
+          props.onChanged?.()
+        } catch (failure) {
+          props.onError?.(String(failure))
+        } finally {
+          setRollbackBusy(false)
+        }
+      }
+
+      const byRevision = new Map()
+      for (const revision of history) {
+        if (revision.snapshot === null || revision.snapshot === undefined || typeof revision.snapshot.text !== 'string') continue
+        const existing = byRevision.get(revision.revision)
+        if (existing === undefined || (revision.seq ?? 0) > (existing.seq ?? 0)) byRevision.set(revision.revision, revision)
+      }
+      const revisions = [...byRevision.values()].sort((left, right) => left.revision - right.revision)
+      const selectedRevisions = revisions.filter((revision) => selected.includes(revision.revision))
+      const toggle = (revision) => setSelected((prev) => prev.includes(revision) ? prev.filter((value) => value !== revision) : prev.length >= 4 ? prev : [...prev, revision].sort((a, b) => a - b))
+
+      return h(
+        'div',
+        { className: 'dsh-memory-detail-backdrop', onClick: props.onClose },
+        h(
+          'aside',
+          { className: 'dsh-memory-detail-drawer', onClick: (event) => event.stopPropagation() },
+          h(
+            'div',
+            { className: 'dsh-memory-detail-head' },
+            h('div', null,
+              h('div', { className: 'dsh-memory-detail-title' }, t('Memory detail', '记忆详情')),
+              h('div', { className: 'dsh-memory-meta' },
+                h('span', { className: 'dsh-memory-badge strong' }, labelOf(KIND_LABELS, current.kind, t)),
+                h('span', { className: 'dsh-memory-badge' }, labelOf(SCOPE_LABELS, current.scope, t)),
+                h('span', { className: 'dsh-memory-badge' }, labelOf(STATUS_LABELS, current.status, t)),
+              ),
+            ),
+            h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onClose }, t('Close', '关闭')),
+          ),
+          h(
+            'div',
+            { className: 'dsh-memory-detail-tabs' },
+            h('button', { type: 'button', className: `dsh-memory-tab${tab === 'overview' ? ' selected' : ''}`, onClick: () => setTab('overview') }, t('Overview', '概览')),
+            h('button', { type: 'button', className: `dsh-memory-tab${tab === 'history' ? ' selected' : ''}`, onClick: () => setTab('history') }, `${t('History', '历史')}${history.length > 0 ? ` ${history.length}` : ''}`),
+          ),
+          tab === 'overview'
+            ? h(
+                React.Fragment,
+                null,
+                h('div', { className: 'dsh-memory-detail-text' }, current.text ?? ''),
+                h(
+                  'dl',
+                  { className: 'dsh-memory-detail-meta' },
+                  h('dt', null, 'ID'), h('dd', null, current.id),
+                  h('dt', null, t('Importance', '重要度')), h('dd', null, h(ImportanceDots, { value: current.importance ?? 3 })),
+                  h('dt', null, t('Quality', '质量')), h('dd', null, quality === null ? '—' : quality.toFixed(2)),
+                  h('dt', null, t('Observed', '观测时间')), h('dd', null, date(current.observedAt)),
+                  h('dt', null, t('Created', '写入时间')), h('dd', null, date(current.createdAt)),
+                  h('dt', null, t('Updated', '更新时间')), h('dd', null, date(current.updatedAt)),
+                  h('dt', null, t('Expires', '有效期')), h('dd', null, date(current.validUntil)),
+                  h('dt', null, t('Revision', '修订')), h('dd', null, `r${current.revision ?? 1}`),
+                  current.workspace ? h('dt', null, t('Workspace', '工作区')) : null,
+                  current.workspace ? h('dd', null, current.workspace) : null,
+                  current.tags?.length ? h('dt', null, t('Tags', '标签')) : null,
+                  current.tags?.length ? h('dd', null, current.tags.map((tag) => `#${tag}`).join(' ')) : null,
+                ),
+                current.details !== null && typeof current.details === 'object'
+                  ? h(
+                      'div',
+                      { className: 'dsh-memory-detail-meta' },
+                      ...['symptom', 'cause', 'fix', 'environment'].flatMap((key) =>
+                        typeof current.details[key] === 'string' && current.details[key] !== ''
+                          ? [h('dt', { key: `dt-${key}` }, t(key, key)), h('dd', { key: `dd-${key}` }, current.details[key])]
+                          : [],
+                      ),
+                    )
+                  : null,
+                h(
+                  'div',
+                  { className: 'dsh-memory-detail-actions' },
+                  current.status === 'active'
+                    ? h('button', { type: 'button', className: 'dsh-memory-button primary', onClick: () => props.onEdit(current) }, t('Edit', '编辑'))
+                    : null,
+                  current.status === 'active'
+                    ? h('button', { type: 'button', className: 'dsh-memory-button', onClick: () => props.onArchive(current.id) }, t('Archive', '归档'))
+                    : h('button', { type: 'button', className: 'dsh-memory-button', onClick: () => props.onRestore(current.id) }, t('Restore', '恢复')),
+                  confirmDelete
+                    ? h(
+                        React.Fragment,
+                        null,
+                        h('button', { type: 'button', className: 'dsh-memory-button danger', onClick: () => props.onDelete(current.id) }, t('Confirm delete', '确认删除')),
+                        h('button', { type: 'button', className: 'dsh-memory-button', onClick: () => setConfirmDelete(false) }, t('Cancel', '取消')),
+                      )
+                    : h('button', { type: 'button', className: 'dsh-memory-button danger', onClick: () => setConfirmDelete(true) }, t('Delete', '删除')),
+                ),
+              )
+            : h(
+                'div',
+                { className: 'dsh-memory-detail-history' },
+                h('div', { className: 'dsh-memory-detail-history-head' },
+                  h('span', { className: 'dsh-memory-hint' }, t('Select up to 4 versions to compare with the current one.', '最多选择 4 个版本与当前版本对比。')),
+                  h('button', { type: 'button', className: 'dsh-memory-button', disabled: historyLoading || rollbackBusy, onClick: () => void loadHistory() }, t('Refresh', '刷新')),
+                ),
+                historyLoading
+                  ? h('div', { className: 'dsh-memory-loading' }, t('Loading revisions…', '加载修订中…'))
+                  : revisions.length === 0
+                    ? h('div', { className: 'dsh-memory-empty' }, t('No revisions recorded.', '还没有修订记录。'))
+                    : h(
+                        'div',
+                        { className: 'dsh-memory-detail-revisions' },
+                        ...revisions.map((revision) =>
+                          h(
+                            'div',
+                            { key: revision.seq ?? `${revision.revision}-${revision.action}`, className: `dsh-memory-detail-revision${selected.includes(revision.revision) ? ' selected' : ''}` },
+                            h('label', { className: 'dsh-memory-check dsh-memory-compare-check' },
+                              h('input', { type: 'checkbox', checked: selected.includes(revision.revision), onChange: () => toggle(revision.revision) }),
+                              h('span', null, `r${revision.revision} · ${revision.action}/${revision.actor}`),
+                            ),
+                            h('span', { className: 'dsh-memory-detail-revision-time' }, new Date(revision.createdAt).toLocaleString()),
+                            h('div', { className: 'dsh-memory-detail-revision-preview' }, revision.snapshot.text.slice(0, 160)),
+                            h('button', { type: 'button', className: 'dsh-memory-button', disabled: rollbackBusy, onClick: () => void rollback(revision.revision) }, t('Roll back', '回滚')),
+                          ),
+                        ),
+                      ),
+                selectedRevisions.length > 0
+                  ? h(
+                      'div',
+                      { className: 'dsh-memory-detail-compare' },
+                      h('div', { className: 'dsh-memory-section-title' }, t('Version comparison', '版本对比')),
+                      h(
+                        'div',
+                        { className: 'dsh-memory-diff-columns' },
+                        ...selectedRevisions.map((revision) =>
+                          h(
+                            'div',
+                            { key: `pane-${revision.seq ?? revision.revision}`, className: 'dsh-memory-diff-pane' },
+                            h('div', { className: 'dsh-memory-diff-pane-title' }, `r${revision.revision} · ${revision.action}/${revision.actor}`),
+                            h('div', { className: 'dsh-memory-diff-pane-meta' }, new Date(revision.createdAt).toLocaleString()),
+                            h('div', { className: 'dsh-memory-diff-text' }, revision.snapshot.text ?? ''),
+                            h('div', { className: 'dsh-memory-diff-pane-actions' },
+                              h('button', { type: 'button', className: 'dsh-memory-button', disabled: rollbackBusy, onClick: () => void rollback(revision.revision) }, t('Roll back to this revision', '回滚到此版本')),
+                            ),
+                          ),
+                        ),
+                        h(
+                          'div',
+                          { className: 'dsh-memory-diff-pane current' },
+                          h('div', { className: 'dsh-memory-diff-pane-title' }, `${t('Current', '当前版本')} · r${current.revision ?? 1}`),
+                          h('div', { className: 'dsh-memory-diff-pane-meta' }, t('active record', '当前记录')),
+                          h('div', { className: 'dsh-memory-diff-text' }, current.text ?? ''),
+                        ),
+                      ),
+                    )
+                  : null,
+              ),
+        ),
+      )
+    }
+
+    function MemorySkeletons() {
+      return h(
+        'div',
+        { className: 'dsh-memory-list' },
+        ...[0, 1, 2].map((index) =>
+          h('div', { key: index, className: 'dsh-memory-skeleton' },
+            h('div', { className: 'dsh-memory-skeleton-line short' }),
+            h('div', { className: 'dsh-memory-skeleton-line' }),
+            h('div', { className: 'dsh-memory-skeleton-line medium' }),
+          ),
+        ),
+      )
+    }
+
+    function MemoryTimeline(props) {
+      const groups = new Map()
+      for (const memory of props.items) {
+        const timestamp = memory.observedAt ?? memory.updatedAt ?? memory.createdAt
+        const date = typeof timestamp === 'number' ? new Date(timestamp).toLocaleDateString() : '—'
+        if (!groups.has(date)) groups.set(date, [])
+        groups.get(date).push(memory)
+      }
+      return h(
+        'div',
+        { className: 'dsh-memory-timeline' },
+        ...[...groups.entries()].map(([date, entries]) =>
+          h(
+            'div',
+            { key: date, className: 'dsh-memory-timeline-group' },
+            h('div', { className: 'dsh-memory-timeline-date' }, date),
+            h(
+              'div',
+              { className: 'dsh-memory-timeline-items' },
+              ...entries.map((memory) =>
+                h(
+                  'div',
+                  { key: memory.id, className: 'dsh-memory-timeline-item', onClick: () => props.onDetail(memory.id) },
+                  h('div', { className: 'dsh-memory-row-top' },
+                    h('span', { className: 'dsh-memory-badge strong' }, labelOf(KIND_LABELS, memory.kind, props.t)),
+                    h('span', { className: 'dsh-memory-badge' }, labelOf(SCOPE_LABELS, memory.scope, props.t)),
+                    typeof memory.observedAt === 'number' ? h('span', { className: 'dsh-memory-meta' }, new Date(memory.observedAt).toLocaleTimeString()) : null,
+                  ),
+                  h('p', { className: 'dsh-memory-text' }, memory.text ?? ''),
+                  h(ImportanceDots, { value: memory.importance ?? 3 }),
+                ),
+              ),
+            ),
+          ),
+        ),
+      )
+    }
+
+    function sortMemories(items, mode) {
+      const copy = [...items]
+      const time = (memory) => memory.observedAt ?? memory.updatedAt ?? memory.createdAt ?? 0
+      if (mode === 'importance') return copy.sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0) || time(b) - time(a))
+      if (mode === 'quality') return copy.sort((a, b) => (b.qualityScore ?? 0) - (a.qualityScore ?? 0) || time(b) - time(a))
+      if (mode === 'hits') return copy.sort((a, b) => (b.useCount ?? 0) - (a.useCount ?? 0) || time(b) - time(a))
+      return copy.sort((a, b) => time(b) - time(a))
+    }
+
     function MemoryBrowser(props) {
       const client = props.client
       const t = props.t
@@ -1632,7 +1813,6 @@ window.__ModuleLoader__.load({
       const [saving, setSaving] = useState(false)
       const [editingId, setEditingId] = useState(null)
       const [editText, setEditText] = useState('')
-      const [confirmingId, setConfirmingId] = useState(null)
       const [busyId, setBusyId] = useState(null)
       const [tab, setTab] = useState('active')
       const [projects, setProjects] = useState([])
@@ -1641,17 +1821,20 @@ window.__ModuleLoader__.load({
       const [offset, setOffset] = useState(0)
       const [hasMore, setHasMore] = useState(false)
       const [showAddForm, setShowAddForm] = useState(false)
-      const [historyId, setHistoryId] = useState(null)
-      const [historyItems, setHistoryItems] = useState([])
-      const [historyBusy, setHistoryBusy] = useState(false)
-      const [compareRevision, setCompareRevision] = useState(null)
       const [diagnostics, setDiagnostics] = useState(null)
       const [eventList, setEventList] = useState([])
       const [quality, setQuality] = useState(null)
       const [qualityDays, setQualityDays] = useState(7)
+      const [graph, setGraph] = useState(null)
+      const [agreement, setAgreement] = useState(null)
       const [diagBusy, setDiagBusy] = useState(false)
       const [diagNotice, setDiagNotice] = useState(null)
       const [loadingMore, setLoadingMore] = useState(false)
+      const [detail, setDetail] = useState(null)
+      const [detailTab, setDetailTab] = useState('overview')
+      const [detailBusy, setDetailBusy] = useState(false)
+      const [sortMode, setSortMode] = useState('recent')
+      const [view, setView] = useState('list')
       const loadingMoreRef = useRef(false)
       const requestRef = useRef(0)
 
@@ -1660,6 +1843,17 @@ window.__ModuleLoader__.load({
         setLoading(true)
         setError(null)
         try {
+          if (tab === 'graph') {
+            const [nextGraph, nextStats] = await Promise.all([client.graphView(200), client.stats()])
+            if (requestId !== requestRef.current) return
+            setGraph(nextGraph)
+            setStats(nextStats)
+            setItems([])
+            setTotal(nextGraph?.nodes?.length ?? 0)
+            setOffset(0)
+            setHasMore(false)
+            return
+          }
           const filters = {
             scope: scope === '' ? undefined : scope,
             kind: kind === '' ? undefined : kind,
@@ -1667,16 +1861,18 @@ window.__ModuleLoader__.load({
             offset: 0,
           }
           if (tab === 'diagnostics') {
-            const [nextDiagnostics, nextEvents, nextStats, nextQuality] = await Promise.all([
+            const [nextDiagnostics, nextEvents, nextStats, nextQuality, nextAgreement] = await Promise.all([
               client.diagnostics(),
               client.events(20).catch(() => []),
               client.stats(),
               client.quality(qualityDays).catch(() => null),
+              client.jevAgreement(30).catch(() => null),
             ])
             if (requestId !== requestRef.current) return
             setDiagnostics(nextDiagnostics)
             setEventList(Array.isArray(nextEvents) ? nextEvents : [])
             setQuality(nextQuality ?? null)
+            setAgreement(nextAgreement ?? null)
             setItems([])
             setTotal(0)
             setOffset(0)
@@ -1717,8 +1913,9 @@ window.__ModuleLoader__.load({
                 ? client.list(filters)
                 : client.search({ ...filters, query: query.trim(), limit: 10, explain: true })
               : client.candidates({ limit: 50, offset: 0, status: tab })
-          const [page, nextStats] = await Promise.all([request, client.stats()])
+          const [page, nextStats, nextQuality] = await Promise.all([request, client.stats(), client.quality(7).catch(() => null)])
           if (requestId !== requestRef.current) return
+          if (nextQuality !== null && nextQuality !== undefined) setQuality(nextQuality)
           const pageMemories = Array.isArray(page.memories) ? page.memories : []
           const pageTotal = typeof page.total === 'number' ? page.total : pageMemories.length
           setItems(pageMemories)
@@ -1743,6 +1940,17 @@ window.__ModuleLoader__.load({
         setLoadingMore(true)
         setError(null)
         try {
+          if (tab === 'graph') {
+            const [nextGraph, nextStats] = await Promise.all([client.graphView(200), client.stats()])
+            if (requestId !== requestRef.current) return
+            setGraph(nextGraph)
+            setStats(nextStats)
+            setItems([])
+            setTotal(nextGraph?.nodes?.length ?? 0)
+            setOffset(0)
+            setHasMore(false)
+            return
+          }
           const filters = {
             scope: scope === '' ? undefined : scope,
             kind: kind === '' ? undefined : kind,
@@ -2061,34 +2269,16 @@ window.__ModuleLoader__.load({
         }
       }
 
-      async function toggleHistory(id) {
-        if (historyId === id) {
-          setHistoryId(null)
-          setHistoryItems([])
-          setCompareRevision(null)
-          return
-        }
-        setCompareRevision(null)
-        await loadHistory(id)
-      }
-
-      function showDiff(id, revision) {
-        setCompareRevision(revision)
-      }
-
-      async function rollbackMemory(id, revision) {
-        setHistoryBusy(true)
+      async function openDetail(id, tab = 'overview') {
+        setDetailBusy(true)
+        setDetailTab(tab)
         setError(null)
         try {
-          await client.rollback(id, revision)
-          setNotice(`${t('Rolled back to revision', '已回滚到修订')} r${revision}`)
-          setCompareRevision(null)
-          await refresh()
-          await loadHistory(id)
+          setDetail(await client.getMemory(id))
         } catch (failure) {
           setError(errorText(failure))
         } finally {
-          setHistoryBusy(false)
+          setDetailBusy(false)
         }
       }
 
@@ -2113,7 +2303,6 @@ window.__ModuleLoader__.load({
         setError(null)
         try {
           await client.remove({ id })
-          setConfirmingId(null)
           await refresh()
         } catch (failure) {
           setError(errorText(failure))
@@ -2126,6 +2315,7 @@ window.__ModuleLoader__.load({
         stats === null
           ? t('Loading…', '加载中…')
           : `${stats.count} ${t('memories', '条记忆')} · ${stats.pendingEmbeddings} ${t('pending embeddings', '条待补向量')} · ${stats.embedding.model} (${stats.embedding.dimensions}d)`
+      const displayItems = sortMemories(items, sortMode)
 
       return h(
         'div',
@@ -2162,6 +2352,7 @@ window.__ModuleLoader__.load({
         ),
         error !== null ? h('div', { className: 'dsh-memory-banner error' }, error) : null,
         notice !== null ? h('div', { className: 'dsh-memory-banner ok' }, notice) : null,
+        h(MemoryKpis, { stats, quality, t }),
         h(
           'div',
           { className: 'dsh-memory-tabs' },
@@ -2171,6 +2362,7 @@ window.__ModuleLoader__.load({
             ['candidate', t('Pending', '待确认'), stats?.candidateCount],
             ['closed', t('Archive', '归档'), (stats?.dismissedCount ?? 0) + (stats?.archivedCount ?? 0) + (stats?.supersededCount ?? 0)],
             ['projects', t('Projects', '项目'), undefined],
+            ['graph', t('Graph', '图谱'), undefined],
             ['diagnostics', t('Diagnostics', '诊断'), undefined],
           ].map(([key, label, count]) =>
             h(
@@ -2258,6 +2450,24 @@ window.__ModuleLoader__.load({
             },
             showAddForm ? t('Close', '收起') : t('+ Add', '＋ 添加'),
           ),
+          h(
+            'div',
+            { className: 'dsh-memory-toolbar-secondary' },
+            h(
+              'select',
+              { className: 'dsh-memory-select', value: sortMode, onChange: (event) => setSortMode(event.target.value) },
+              h('option', { value: 'recent' }, t('Sort: recent', '排序：最近')),
+              h('option', { value: 'importance' }, t('Sort: importance', '排序：重要度')),
+              h('option', { value: 'quality' }, t('Sort: quality', '排序：质量')),
+              h('option', { value: 'hits' }, t('Sort: hits', '排序：命中')),
+            ),
+            h(
+              'div',
+              { className: 'dsh-memory-segment' },
+              h('button', { type: 'button', className: view === 'list' ? 'selected' : '', onClick: () => setView('list') }, t('List', '列表')),
+              h('button', { type: 'button', className: view === 'timeline' ? 'selected' : '', onClick: () => setView('timeline') }, t('Timeline', '时间线')),
+            ),
+          ),
         ),
         tab === 'active' && showAddForm ? h(
           'div',
@@ -2314,6 +2524,7 @@ window.__ModuleLoader__.load({
               events: eventList,
               quality,
               qualityDays,
+              agreement,
               onQualityRange: setQualityDays,
               t,
               busy: diagBusy,
@@ -2323,6 +2534,8 @@ window.__ModuleLoader__.load({
               onBackup: () => void backupFromDiagnostics(),
               onConsolidate: () => void consolidateFromDiagnostics(),
             })
+          : tab === 'graph'
+          ? h(MemoryGraph, { graph, t, onDetail: (id) => void openDetail(id) })
           : tab === 'projects'
           ? projects.length === 0
             ? h('div', { className: 'dsh-memory-empty' }, t('No project memories yet.', '还没有项目记忆。'))
@@ -2366,7 +2579,7 @@ window.__ModuleLoader__.load({
                 ),
               )
           : loading && items.length === 0
-          ? h('div', { className: 'dsh-memory-loading' }, t('Loading memories…', '加载记忆中…'))
+          ? h(MemorySkeletons)
           : items.length === 0 && conflicts.length === 0
             ? h(
                 'div',
@@ -2375,10 +2588,12 @@ window.__ModuleLoader__.load({
                   ? t('Nothing needs review. Outdated or repeatedly irrelevant memories will appear here.', '没有需要复核的记忆。过时或多次不相关的记忆会出现在这里。')
                   : t('No memories yet. Save one above, or ask the agent to remember something.', '还没有记忆。可以在上方新增，或让助手记住一些事情。'),
               )
-            : h(
+            : tab === 'active' && view === 'timeline' && query.trim() === ''
+              ? h(MemoryTimeline, { items: displayItems, t, onDetail: (id) => void openDetail(id) })
+              : h(
                 'div',
                 { className: 'dsh-memory-list' },
-                ...items.map((memory) =>
+                ...displayItems.map((memory) =>
                   h(
                     React.Fragment,
                     { key: memory.id },
@@ -2389,56 +2604,38 @@ window.__ModuleLoader__.load({
                     mode: tab,
                     editingId,
                     editText,
-                    confirmingId,
                     busyId,
+                    onDetail: (id) => void openDetail(id),
                     onStartEdit: (target) => {
                       setEditingId(target.id)
                       setEditText(target.text)
-                      setConfirmingId(null)
-                    },
+                            },
                     onCancelEdit: () => {
                       setEditingId(null)
                       setEditText('')
                     },
                     onEditText: setEditText,
                     onSaveEdit: (id, text) => void saveEdit(id),
-                    onAskDelete: (id) => {
-                      setConfirmingId(id)
-                      setEditingId(null)
-                    },
-                    onCancelDelete: () => setConfirmingId(null),
-                    onDelete: (id) => void remove(id),
                     onConfirm: (id) => void confirmCandidate(id),
                     onDismiss: (id) => void dismissCandidate(id),
                     onRestore: (id) => void restoreMemory(id),
                     onArchive: (id) => void archiveMemory(id),
                     onKeep: (id) => void keepReview(id),
-                    onHistory: (id) => void toggleHistory(id),
                     onFeedback: (id, action) => void sendFeedback(id, action),
                     query,
                   }),
-                  historyId === memory.id
-                    ? h(HistoryPanel, {
-                        key: `${memory.id}-history`,
-                        t,
-                        items: historyItems,
-                        busy: historyBusy,
-                        memory,
-                        compareRevision,
-                        onDiff: (revision) => showDiff(memory.id, revision),
-                        onDiffClose: () => setCompareRevision(null),
-                        onRollback: (revision) => void rollbackMemory(memory.id, revision),
-                        onClose: () => {
-                          setHistoryId(null)
-                          setHistoryItems([])
-                          setCompareRevision(null)
-                        },
-                      })
-                    : null,
                   ),
                 ),
               ),
-        tab === 'diagnostics' ? null : h(
+        tab === 'diagnostics' ? null : tab === 'graph' ? h(
+          'div',
+          { className: 'dsh-memory-meta' },
+          h('span', null, `${graph?.nodes?.length ?? 0} ${t('nodes', '节点')} · ${graph?.edges?.length ?? 0} ${t('edges', '条边')}`),
+          graph?.truncated === true ? h('span', null, t('truncated for display', '已截断显示')) : null,
+          stats !== null && stats.embedder !== undefined && stats.embedder.ok === true
+            ? h('span', null, `embedder ${stats.embedder.latencyMs}ms`)
+            : null,
+        ) : h(
           'div',
           { className: 'dsh-memory-meta' },
           h('span', null, `${items.length} / ${total} ${t('shown', '显示')}`),
@@ -2464,6 +2661,35 @@ window.__ModuleLoader__.load({
             )
           : null,
       ),
+      detail !== null
+        ? h(MemoryDetailDrawer, {
+            memory: detail,
+            client,
+            t,
+            busy: detailBusy,
+            initialTab: detailTab,
+            onChanged: () => void refresh(),
+            onError: (message) => setError(String(message)),
+            onClose: () => setDetail(null),
+            onEdit: (memory) => {
+              setDetail(null)
+              setEditingId(memory.id)
+              setEditText(memory.text)
+            },
+            onArchive: (id) => {
+              setDetail(null)
+              void archiveMemory(id)
+            },
+            onRestore: (id) => {
+              setDetail(null)
+              void restoreMemory(id)
+            },
+            onDelete: (id) => {
+              setDetail(null)
+              void remove(id)
+            },
+          })
+        : null,
     ),
   )
 }

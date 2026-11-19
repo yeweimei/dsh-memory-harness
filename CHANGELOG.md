@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.22.0
+
+- Memory panel: remove row-level History/More; keep only high-frequency actions and move history/version comparison into the detail drawer.
+- Detail drawer: Overview/History tabs, inline multi-version comparison, per-version rollback, archive/restore/delete actions with confirmation.
+- P1: KPI strip, kind accent cards, importance dots, quality bars, hover/motion, skeleton loading, sort control, list/timeline views.
+- P2: read-only graph snapshot RPC + SVG Memory Graph tab; Jev-vs-manual agreement diagnostics.
+- Remove dead HistoryPanel/DiffModal UI and stale CSS.
+
 ## 0.21.4
 
 - Move the manual annotation switch next to the Jev controls so the automatic/manual choice is visible in one place.
