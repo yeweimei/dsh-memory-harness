@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { Extractor, buildTranscript, parseExtraction, transcriptLimit } from '../lib/extract.js'
+import { Extractor, buildTranscript, parseExtraction, stripInjectedBlocks, transcriptLimit } from '../lib/extract.js'
 import { resolveConfig } from '../lib/config.js'
 
 function event(seq, type, data) {
@@ -23,6 +23,25 @@ test('buildTranscript renders messages, tool calls and failures, honouring the w
   assert.ok(text.includes('pnpm approve-builds'))
   assert.ok(text.includes('@ 1970-01-01T00:00:00.002Z'))
   assert.ok(!text.includes('怎么办')) // seq 1 is before the watermark
+})
+
+test('buildTranscript drops plugin-injected memory blocks but keeps user text', () => {
+  const events = [
+    {
+      seq: 1,
+      time: 1000,
+      type: 'user/message',
+      data: {
+        role: 'user',
+        content: [{ type: 'text', text: '<dsh-memory-recall>\nPotentially relevant memories:\n- old fact\n</dsh-memory-recall>\n真正的问题：部署走哪个代理？' }],
+      },
+    },
+  ]
+  const text = buildTranscript(events, -1)
+  assert.ok(!text.includes('<dsh-memory-recall>'))
+  assert.ok(!text.includes('old fact'))
+  assert.ok(text.includes('真正的问题：部署走哪个代理？'))
+  assert.equal(stripInjectedBlocks('<dsh-memory-core>x</dsh-memory-core>  hello'), 'hello')
 })
 
 test('admitPending runs the judge and applies validated decisions only', async () => {

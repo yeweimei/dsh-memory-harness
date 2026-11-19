@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.20.1
+
+- Strip `<dsh-memory-core>` / `<dsh-memory-recall>` plugin-injection blocks from the extraction transcript so they can never be saved as memories.
+- Add regression coverage for injected-block filtering.
+
 ## 0.20.0
 
 - Add time-aware memories: every record now carries `observedAt` (when the fact was observed) alongside `createdAt`/`updatedAt`.
