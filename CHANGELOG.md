@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.2
+
+- Add `jev.mode: authoritative`: Jev scores are written as context feedback, so future similar queries use the automatic relevance judgement for bounded reranking.
+- Keep `memory_auto_relevance` as the raw audit trail; manual relevance ratings remain an independent optional signal.
+- Shadow mode remains the default.
+
 ## 0.21.1
 
 - Raise the default Jev assessment timeout from 10s to 30s; a local 4B Kev/Jev endpoint can take ~10s for five candidates and was timing out before writing scores.
