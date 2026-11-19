@@ -1,12 +1,15 @@
 # dsh-memory-harness
 
-> **让 DeepSeek Harness 真正记住你：跨会话、能纠错、越用越准。**
+> **dsh 的外置大脑 -- 记得住、想得起，用得上。**
 >
 > 不是再存一份聊天记录，而是把值得留下的偏好、决策、项目事实和踩过的坑，变成下次会主动想起的记忆。
 
 [![CI](https://github.com/yeweimei/dsh-memory-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/yeweimei/dsh-memory-harness/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/yeweimei/dsh-memory-harness)](https://github.com/yeweimei/dsh-memory-harness/releases)
+[![dsh.so](https://cdn.dsh.so/badge/dsh-memory-harness.svg)](https://www.dsh.so/artifact/dsh-memory-harness/)
+
+已收录 [dsh.so 插件市场](https://www.dsh.so/artifact/dsh-memory-harness/)；本地优先，MIT，无 npm 运行时依赖。
 
 它解决的是一个很具体的问题：
 
@@ -120,6 +123,18 @@ dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.19.2.tgz"
 
 **数据在哪里？**  
 默认 `~/.dsh/memory/memory.db`；备份在 `~/.dsh/memory/backups/`。
+
+## 评测
+
+仓库自带可复现的 LongMemEval 评测：
+
+- **检索层**：LongMemEval-S 50 题，session 级 Recall@10 **96%**；
+- **端到端**：Oracle turn 20 题 **70.0%**；S chunk 12 题 **66.7%**（正常题 60%，abstention 100%）；
+- Reader / Judge 使用本地 `qwen3.6-35b-a3b-mtp`，全程使用临时 SQLite，不读写生产记忆库。
+
+这是 **LongMemEval V1 对话记忆**的小样本结果，不是 LongMemEval-V2 榜单排名，也不能直接和榜单头部系统对比。方法与结果见 [test/eval/README.md](test/eval/README.md)。
+
+当前主要短板：multi-session 聚合、temporal 推理、长会话中答案被截断时的稳定性。
 
 ## 进阶功能
 
