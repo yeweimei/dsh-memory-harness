@@ -26,6 +26,21 @@
 |---|---|---|
 | 偏好、项目约定、决策、已知坑、任务状态 | 新会话注入；首轮主动召回；工具失败提示；`memory` 工具检索 | 评价召回结果；在面板里编辑/归档/复核；处理冲突和过期 |
 
+## 时间感知
+
+每条记忆现在区分两个时间：
+
+- `createdAt`：这条记忆被写入库的时间；
+- `observedAt`：这条事实实际被说出/观察到的时间。
+
+自动抽取会把 transcript 里的消息时间写进 `observedAt`；手动保存可以传 `observedAt`。搜索和列表支持：
+
+```text
+memory action=search query="部署方案" since=2026-01-01 until=2026-06-30
+```
+
+排序的时间衰减也按 `observedAt`，而不是“什么时候被重新写入”。面板会显示「记录于」日期。
+
 ## 前置条件
 
 | 要求 | 说明 |
@@ -51,10 +66,10 @@
 dsh plugin --profile web add github:yeweimei/dsh-memory-harness
 ```
 
-或从 [Releases](https://github.com/yeweimei/dsh-memory-harness/releases) 下载 `dsh-memory-harness-0.19.2.tgz`：
+或从 [Releases](https://github.com/yeweimei/dsh-memory-harness/releases) 下载 `dsh-memory-harness-0.20.0.tgz`：
 
 ```bash
-dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.19.2.tgz"
+dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.20.0.tgz"
 ```
 
 也可以使用 DSH 的 Plugin Manager 安装 `dsh-memory-harness`。
@@ -167,19 +182,22 @@ dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.19.2.tgz"
 
 ## 分层存储与修订历史
 
-数据格式 v7 在原有记录上增加分层、生命周期、上下文反馈、内容复核、冲突与有效期字段：
+数据格式 v8 在原有记录上增加分层、生命周期、上下文反馈、内容复核、冲突、有效期与**观测时间**字段：
 
 | 概念 | 取值 | 说明 |
 |---|---|---|
 | `tier` | `working` / `semantic` / `episodic` | `scope=session` → working；`kind=summary` → episodic；其余 → semantic |
 | `status` | `candidate` / `active` / `dismissed` / `superseded` / `archived` | 只有 `active` 参与检索、注入与失败提示 |
 | `revision` | 整数 | 每次变更递增；`memory_revisions` 保存 JSON 快照（不含向量），默认每记忆保留最近 20 条 + 迁移基线 |
+| `observedAt` | 时间戳 | 这条事实实际被说出/观察到的时间；抽取时从 transcript 时间戳推导，手动保存可指定 |
 | `supersededBy` / `validFrom` / `archivedAt` | id / 时间戳 | 取代链与有效期 |
 | `useCount` / `lastUsedAt` / `helpfulCount` | 计数 | core 注入、检索返回、失败提示命中时累计；当前只记录，不参与排序 |
 
+时间语义：`createdAt` 是记录写入时间，`observedAt` 是事实发生时间。搜索/列表支持 `since` / `until` 按 `observedAt` 过滤，recency 衰减也按 `observedAt`；抽取 transcript 的每条消息都带 ISO 时间戳，证据命中时优先从对应行推导 `observedAt`。
+
 - **更新**：`update` 覆盖写但保留旧快照；`supersede`/准入 `update` 不覆盖旧记忆，而是把旧记录置为 `superseded`，检索只取当前 active 版本。
 - **修订历史**：`memory history <id>` / `memory action=history` / RPC `history`；`forget` 前也会留一条快照。
-- **迁移**：旧库按 schema 版本逐级升级到 v7；升级前用 `VACUUM INTO` 备份到 `<dataDir>/backups/`，迁移在单事务内完成，失败回滚并报错。建议保留最近几份迁移备份。
+- **迁移**：旧库按 schema 版本逐级升级到 v8；升级前用 `VACUUM INTO` 备份到 `<dataDir>/backups/`，迁移在单事务内完成，失败回滚并报错。建议保留最近几份迁移备份。
 
 ## 整理、反馈与回滚
 

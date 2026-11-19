@@ -832,6 +832,9 @@ window.__ModuleLoader__.load({
             ? h('span', { className: 'dsh-memory-badge' }, shortPath(memory.workspace))
             : null,
           h('span', { className: 'dsh-memory-badge' }, `${t('importance', '重要度')} ${memory.importance}`),
+          typeof memory.observedAt === 'number'
+            ? h('span', { className: 'dsh-memory-badge' }, `${t('observed', '记录于')} ${new Date(memory.observedAt).toLocaleDateString()}`)
+            : null,
           typeof memory.validUntil === 'number'
             ? h('span', { className: 'dsh-memory-badge' },
                 memory.validUntil < Date.now()

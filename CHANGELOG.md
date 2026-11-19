@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.20.0
+
+- Add time-aware memories: every record now carries `observedAt` (when the fact was observed) alongside `createdAt`/`updatedAt`.
+- Extraction reads ISO timestamps from the transcript and derives `observedAt` from the evidence line; it does not trust an invented date when the transcript line carries one.
+- `memory` save/update accepts `observedAt`; search/list accept `since`/`until` and filter on observed time.
+- Recency scoring, core-memory injection, conflict prompts, exports, revisions and backups use the observed time.
+- Schema v8 adds `observed_at` plus an index; existing v7 databases migrate in one transaction with the usual pre-migration backup.
+
 ## 0.19.2
 
 - Remove the credential-reading manual RPC verifier from the public repository so the plugin-market security scan has no credential-access surface.

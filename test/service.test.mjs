@@ -311,6 +311,25 @@ test('save stores a memory and search finds it', async () => {
   assert.ok(result.memories[0].text.includes('TypeScript'))
 })
 
+test('observedAt records the source time and filters search/list by time', async () => {
+  const { service } = await makeService()
+  const observedAt = Date.parse('2024-03-01T10:00:00.000Z')
+  const saved = await service.save(
+    { text: '用户在 2024 年 3 月确定了部署方案。', kind: 'decision', observedAt: '2024-03-01T10:00:00.000Z' },
+    session,
+  )
+  assert.equal(service.store.get(saved.id).observedAt, observedAt)
+  const view = service.toView(service.store.get(saved.id), { full: true })
+  assert.equal(view.observedAt, observedAt)
+  assert.equal(view.validFrom, observedAt)
+  const inside = await service.search({ query: '部署方案', since: '2024-01-01', until: '2024-12-31' }, session)
+  assert.equal(inside.memories.length, 1)
+  const outside = await service.search({ query: '部署方案', since: '2025-01-01' }, session)
+  assert.equal(outside.memories.length, 0)
+  const listed = await service.list({ since: '2024-01-01', until: '2024-12-31' })
+  assert.equal(listed.memories.length, 1)
+})
+
 test('an exact duplicate updates the existing record instead of adding one', async () => {
   const { service } = await makeService()
   const first = await service.save({ text: '用户偏好中文回答。', kind: 'preference' }, session)

@@ -32,6 +32,7 @@ function record(overrides) {
     details: overrides.details ?? null,
     status: overrides.status ?? 'active',
     signature: overrides.signature ?? null,
+    observedAt: overrides.observedAt ?? now,
   }
 }
 
@@ -56,6 +57,23 @@ test('recursive graph traversal honours maxHops', async () => {
     assert.deepEqual(twoHop.map((entry) => entry.id), ['m_2', 'm_3'])
     assert.equal(twoHop.find((entry) => entry.id === 'm_3').depth, 4)
     await store.close()
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('observedAt persists across reopen', async () => {
+  const dir = tempDir()
+  try {
+    const observedAt = Date.parse('2024-01-02T03:04:05.000Z')
+    const store = new SqliteStore({ dataDir: dir })
+    await store.open()
+    await store.put(record({ id: 'm_time', text: 'time-aware', observedAt }))
+    await store.close()
+    const reopened = new SqliteStore({ dataDir: dir })
+    await reopened.open()
+    assert.equal(reopened.get('m_time').observedAt, observedAt)
+    await reopened.close()
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }
@@ -120,6 +138,7 @@ test('SQLite store migrates a legacy database to v7 with a backup and baseline r
     assert.equal(migrated.tier, 'working')
     assert.equal(migrated.revision, 1)
     assert.equal(migrated.validFrom, 10)
+    assert.equal(migrated.observedAt, 10)
     const revisions = store.listRevisions('m_v2')
     assert.equal(revisions.length, 1)
     assert.equal(revisions[0].action, 'migrate')
@@ -127,7 +146,7 @@ test('SQLite store migrates a legacy database to v7 with a backup and baseline r
     const backups = readdirSync(path.join(dir, 'backups'))
     assert.equal(backups.length, 1)
     const version = store.db.prepare('PRAGMA user_version').get().user_version
-    assert.equal(version, 7)
+    assert.equal(version, 8)
     assert.equal(migrated.qualityScore, 0)
     assert.equal(migrated.needsReview, false)
     await store.close()

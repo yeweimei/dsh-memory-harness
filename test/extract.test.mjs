@@ -21,6 +21,7 @@ test('buildTranscript renders messages, tool calls and failures, honouring the w
   assert.ok(text.includes('tool-error'))
   assert.ok(text.includes('ERR_PNPM_IGNORED_BUILD_SCRIPTS'))
   assert.ok(text.includes('pnpm approve-builds'))
+  assert.ok(text.includes('@ 1970-01-01T00:00:00.002Z'))
   assert.ok(!text.includes('怎么办')) // seq 1 is before the watermark
 })
 
@@ -81,6 +82,7 @@ test('parseExtraction accepts grounded items and drops ungrounded or low-confide
         details: { symptom: 'ERR_PNPM_IGNORED_BUILD_SCRIPTS', cause: 'pnpm 默认阻止依赖脚本', fix: 'pnpm approve-builds && pnpm install' },
         tags: ['pnpm'],
         confidence: 0.9,
+        observedAt: '2026-11-19T10:00:00.000Z',
         evidenceQuote: 'ERR_PNPM_IGNORED_BUILD_SCRIPTS: ignored build scripts',
       },
       {
@@ -103,6 +105,7 @@ test('parseExtraction accepts grounded items and drops ungrounded or low-confide
   assert.equal(parsed.items[0].kind, 'pitfall')
   assert.equal(parsed.items[0].details.fix, 'pnpm approve-builds && pnpm install')
   assert.equal(parsed.items[0].tags[0], 'pnpm')
+  assert.equal(parsed.items[0].observedAt, Date.parse('1970-01-01T00:00:00.003Z'))
   assert.match(parsed.summary, /pnpm/)
 
   assert.deepEqual(parseExtraction('not json', { transcript: 'x' }), { items: [], summary: '' })
