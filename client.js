@@ -62,6 +62,17 @@ window.__ModuleLoader__.load({
 .dsh-memory-diff-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .dsh-memory-diff-title { font-size: 14px; font-weight: 600; }
 .dsh-memory-diff-meta { color: var(--dsw-alias-label-secondary); font-size: 12px; }
+.dsh-memory-diff-head-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.dsh-memory-diff-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.dsh-memory-diff-pane { min-width: 0; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; padding: 10px; background: var(--dsw-alias-bg-layer-2); display: flex; flex-direction: column; gap: 6px; }
+.dsh-memory-diff-pane.current { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 45%, var(--dsw-alias-border-l1)); }
+.dsh-memory-diff-pane-title { font-weight: 600; font-size: 13px; }
+.dsh-memory-diff-pane-meta { color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.dsh-memory-diff-text { white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.5; max-height: 220px; overflow: auto; }
+.dsh-memory-diff-fields { display: flex; flex-direction: column; gap: 4px; }
+.dsh-memory-diff-lines { border-top: 1px solid var(--dsw-alias-border-l1); padding-top: 8px; }
+.dsh-memory-diff-lines > summary { cursor: pointer; color: var(--dsw-alias-label-secondary); font-size: 12px; }
+@media (max-width: 720px) { .dsh-memory-diff-columns { grid-template-columns: 1fr; } }
 .dsh-memory-page { display: flex; flex-direction: column; gap: 14px; color: var(--dsw-alias-label-primary); font-size: 13px; line-height: 1.5; }
 .dsh-memory-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .dsh-memory-header-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -1138,7 +1149,13 @@ window.__ModuleLoader__.load({
               ),
             ),
         props.diff !== null && props.diff !== undefined
-          ? h(DiffModal, { diff: props.diff, t, onClose: props.onDiffClose })
+          ? h(DiffModal, {
+              diff: props.diff,
+              t,
+              busy: props.busy,
+              onClose: props.onDiffClose,
+              onRollback: () => props.onRollback(props.diff.from.revision),
+            })
           : null,
       )
     }
@@ -1164,28 +1181,73 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'dsh-memory-diff-head' },
             h('div', null,
-              h('div', { className: 'dsh-memory-diff-title' }, `${t('Diff', '对比')} r${diff.from.revision} → r${diff.to.revision}`),
-              h('div', { className: 'dsh-memory-diff-meta' }, `${diff.from.action}/${diff.from.actor} → ${diff.to.action} · ${new Date(diff.from.createdAt).toLocaleString()}`),
+              h('div', { className: 'dsh-memory-diff-title' }, `${t('Compare versions', '版本对比')} · r${diff.from.revision} / r${diff.to.revision}`),
+              h('div', { className: 'dsh-memory-diff-meta' }, `${diff.from.action}/${diff.from.actor} · ${new Date(diff.from.createdAt).toLocaleString()}`),
             ),
-            h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onClose }, t('Close', '关闭')),
-          ),
-          ...(diff.fields ?? []).map((field) =>
             h(
               'div',
-              { key: `field-${field.field}`, className: 'dsh-memory-diff-field' },
-              `${field.field}: ${JSON.stringify(field.before)} → ${JSON.stringify(field.after)}`,
+              { className: 'dsh-memory-diff-head-actions' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsh-memory-button',
+                  disabled: props.busy,
+                  onClick: props.onRollback,
+                },
+                t('Roll back to this revision', '回滚到此版本'),
+              ),
+              h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onClose }, t('Close', '关闭')),
             ),
           ),
-          ...(diff.lines ?? []).map((line, index) =>
+          h(
+            'div',
+            { className: 'dsh-memory-diff-columns' },
             h(
               'div',
-              {
-                key: `line-${index}`,
-                className: `dsh-memory-diff-line ${line.type === 'add' ? 'dsh-memory-diff-add' : line.type === 'del' ? 'dsh-memory-diff-del' : ''}`,
-              },
-              `${line.type === 'add' ? '+' : line.type === 'del' ? '-' : ' '}${line.text}`,
+              { className: 'dsh-memory-diff-pane' },
+              h('div', { className: 'dsh-memory-diff-pane-title' }, `${t('Old version', '旧版本')} · r${diff.from.revision}`),
+              h('div', { className: 'dsh-memory-diff-pane-meta' }, `${diff.from.action}/${diff.from.actor}`),
+              h('div', { className: 'dsh-memory-diff-text' }, diff.from.text ?? ''),
+            ),
+            h(
+              'div',
+              { className: 'dsh-memory-diff-pane current' },
+              h('div', { className: 'dsh-memory-diff-pane-title' }, `${t('Current', '当前版本')} · r${diff.to.revision}`),
+              h('div', { className: 'dsh-memory-diff-pane-meta' }, diff.to.action),
+              h('div', { className: 'dsh-memory-diff-text' }, diff.to.text ?? ''),
             ),
           ),
+          (diff.fields ?? []).length > 0
+            ? h(
+                'div',
+                { className: 'dsh-memory-diff-fields' },
+                ...(diff.fields ?? []).map((field) =>
+                  h(
+                    'div',
+                    { key: `field-${field.field}`, className: 'dsh-memory-diff-field' },
+                    `${field.field}: ${JSON.stringify(field.before)} → ${JSON.stringify(field.after)}`,
+                  ),
+                ),
+              )
+            : null,
+          (diff.lines ?? []).length > 0
+            ? h(
+                'details',
+                { className: 'dsh-memory-diff-lines' },
+                h('summary', null, t('Line diff', '行级差异')),
+                ...(diff.lines ?? []).map((line, index) =>
+                  h(
+                    'div',
+                    {
+                      key: `line-${index}`,
+                      className: `dsh-memory-diff-line ${line.type === 'add' ? 'dsh-memory-diff-add' : line.type === 'del' ? 'dsh-memory-diff-del' : ''}`,
+                    },
+                    `${line.type === 'add' ? '+' : line.type === 'del' ? '-' : ' '}${line.text}`,
+                  ),
+                ),
+              )
+            : null,
         ),
       )
     }
@@ -1984,6 +2046,7 @@ window.__ModuleLoader__.load({
         try {
           await client.rollback(id, revision)
           setNotice(`${t('Rolled back to revision', '已回滚到修订')} r${revision}`)
+          setDiffData(null)
           await refresh()
           await loadHistory(id)
         } catch (failure) {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.20.3
+
+- Render revision comparisons as two side-by-side memories (old revision vs current), not just a field/line diff.
+- Add "Roll back to this revision" and "Close" buttons directly to the comparison modal.
+- Close the comparison after a successful rollback.
+
 ## 0.20.2
 
 - Show memory revision diffs in a centered modal overlay instead of appending them below the history list, where they could be off-screen and look like the button did nothing.
