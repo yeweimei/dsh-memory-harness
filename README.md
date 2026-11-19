@@ -66,10 +66,10 @@ memory action=search query="部署方案" since=2026-01-01 until=2026-06-30
 dsh plugin --profile web add github:yeweimei/dsh-memory-harness
 ```
 
-或从 [Releases](https://github.com/yeweimei/dsh-memory-harness/releases) 下载 `dsh-memory-harness-0.20.4.tgz`：
+或从 [Releases](https://github.com/yeweimei/dsh-memory-harness/releases) 下载 `dsh-memory-harness-0.21.0.tgz`：
 
 ```bash
-dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.20.4.tgz"
+dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.21.0.tgz"
 ```
 
 也可以使用 DSH 的 Plugin Manager 安装 `dsh-memory-harness`。
@@ -138,6 +138,22 @@ dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.20.4.tgz"
 
 **数据在哪里？**  
 默认 `~/.dsh/memory/memory.db`；备份在 `~/.dsh/memory/backups/`。
+
+## Jev 自动相关度（可选）
+
+可在每次召回后异步调用 Jev System One 做自动相关度评分，评分只落库，不改变排序：
+
+```yaml
+jev:
+  enabled: true
+  baseURL: http://127.0.0.1:7000/v1
+  model: jev-latest
+  apiKey: ...
+  topK: 10
+  timeoutMs: 10000
+```
+
+评分写入 `memory_auto_relevance`，与用户显式评分分开；这是 shadow 数据，不会直接改 `qualityScore` 或触发复核。Jev 不可用不会影响召回。
 
 ## 评测
 

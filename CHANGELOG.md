@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.21.0
+
+- Add optional Jev (TypeSafe System One) recall relevance assessment.
+- After a recall group is recorded, the plugin asynchronously asks a Jev-compatible `/v1/systemone` endpoint one `noul` question per recalled memory and stores probabilities in `memory_auto_relevance`.
+- Shadow-only: auto scores never change ranking, content quality, or review state.
+- Configure `jev.enabled`, `jev.baseURL`, `jev.model`, `jev.apiKey`, `jev.topK` and `jev.timeoutMs` in the loader/profile config.
+- Jev failures are isolated and logged; retrieval is never blocked.
+
 ## 0.20.4
 
 - Redesign revision comparison as a multi-version selector: choose up to four historical revisions of the same memory and compare them side-by-side with the current record.
