@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.20.4
+
+- Redesign revision comparison as a multi-version selector: choose up to four historical revisions of the same memory and compare them side-by-side with the current record.
+- Each historical pane has its own "Roll back to this revision" button; the current pane is read-only.
+- Deduplicate repeated revision rows in the selector and remount the modal when a different initial revision is chosen.
+
 ## 0.20.3
 
 - Render revision comparisons as two side-by-side memories (old revision vs current), not just a field/line diff.

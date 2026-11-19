@@ -63,13 +63,20 @@ window.__ModuleLoader__.load({
 .dsh-memory-diff-title { font-size: 14px; font-weight: 600; }
 .dsh-memory-diff-meta { color: var(--dsw-alias-label-secondary); font-size: 12px; }
 .dsh-memory-diff-head-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-.dsh-memory-diff-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.dsh-memory-diff-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
 .dsh-memory-diff-pane { min-width: 0; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; padding: 10px; background: var(--dsw-alias-bg-layer-2); display: flex; flex-direction: column; gap: 6px; }
 .dsh-memory-diff-pane.current { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 45%, var(--dsw-alias-border-l1)); }
 .dsh-memory-diff-pane-title { font-weight: 600; font-size: 13px; }
 .dsh-memory-diff-pane-meta { color: var(--dsw-alias-label-secondary); font-size: 11px; }
 .dsh-memory-diff-text { white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.5; max-height: 220px; overflow: auto; }
 .dsh-memory-diff-fields { display: flex; flex-direction: column; gap: 4px; }
+.dsh-memory-diff-picker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border: 1px solid var(--dsw-alias-border-l1); border-radius: 10px; padding: 8px; background: var(--dsw-alias-bg-layer-2); max-height: 150px; overflow: auto; }
+.dsh-memory-diff-picker-label { color: var(--dsw-alias-label-secondary); font-size: 12px; }
+.dsh-memory-diff-picker-item { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 999px; padding: 4px 8px; font-size: 11px; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.dsh-memory-diff-picker-item.selected { border-color: var(--dsw-alias-brand-primary); color: var(--dsw-alias-label-primary); }
+.dsh-memory-diff-picker-item.current { cursor: default; border-style: dashed; }
+.dsh-memory-diff-picker-item small { color: var(--dsw-alias-label-tertiary); }
+.dsh-memory-diff-pane-actions { margin-top: auto; padding-top: 4px; }
 .dsh-memory-diff-lines { border-top: 1px solid var(--dsw-alias-border-l1); padding-top: 8px; }
 .dsh-memory-diff-lines > summary { cursor: pointer; color: var(--dsw-alias-label-secondary); font-size: 12px; }
 @media (max-width: 720px) { .dsh-memory-diff-columns { grid-template-columns: 1fr; } }
@@ -1098,6 +1105,8 @@ window.__ModuleLoader__.load({
 
     function HistoryPanel(props) {
       const t = props.t
+      const items = Array.isArray(props.items) ? props.items : []
+      const latestRevision = items.find((revision) => revision.snapshot !== null && revision.snapshot !== undefined)?.revision ?? null
       return h(
         'div',
         { className: 'dsh-memory-history' },
@@ -1105,15 +1114,27 @@ window.__ModuleLoader__.load({
           'div',
           { className: 'dsh-memory-row-top' },
           h('strong', null, t('Revision history', '修订历史')),
+          latestRevision !== null
+            ? h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsh-memory-button',
+                  disabled: props.busy,
+                  onClick: () => props.onDiff(latestRevision),
+                },
+                t('Compare versions', '对比版本'),
+              )
+            : null,
           h(
             'button',
             { type: 'button', className: 'dsh-memory-button', onClick: props.onClose },
             t('Close', '关闭'),
           ),
         ),
-        props.items.length === 0
+        items.length === 0
           ? h('div', { className: 'dsh-memory-meta' }, t('No revisions recorded.', '还没有修订记录。'))
-          : props.items.map((revision) =>
+          : items.map((revision) =>
               h(
                 'div',
                 { key: revision.seq ?? `${revision.revision}-${revision.action}`, className: 'dsh-memory-history-row' },
@@ -1127,10 +1148,10 @@ window.__ModuleLoader__.load({
                     {
                       type: 'button',
                       className: 'dsh-memory-button',
-                      disabled: props.busy || props.diffBusy,
+                      disabled: props.busy,
                       onClick: () => props.onDiff(revision.revision),
                     },
-                    t('Diff vs current', '与当前对比'),
+                    t('Compare', '对比'),
                   ),
                   h(
                     'button',
@@ -1148,13 +1169,16 @@ window.__ModuleLoader__.load({
                   : null,
               ),
             ),
-        props.diff !== null && props.diff !== undefined
+        props.compareRevision !== null && props.compareRevision !== undefined
           ? h(DiffModal, {
-              diff: props.diff,
+              key: `compare-${props.compareRevision}`,
+              memory: props.memory,
+              items,
               t,
               busy: props.busy,
+              initialRevision: props.compareRevision,
               onClose: props.onDiffClose,
-              onRollback: () => props.onRollback(props.diff.from.revision),
+              onRollback: props.onRollback,
             })
           : null,
       )
@@ -1162,7 +1186,28 @@ window.__ModuleLoader__.load({
 
     function DiffModal(props) {
       const t = props.t
-      const diff = props.diff
+      const currentRevision = props.memory?.revision ?? 1
+      const byRevision = new Map()
+      for (const revision of props.items ?? []) {
+        if (revision.snapshot === null || revision.snapshot === undefined || typeof revision.snapshot.text !== 'string') continue
+        const existing = byRevision.get(revision.revision)
+        if (existing === undefined || (revision.seq ?? 0) > (existing.seq ?? 0)) byRevision.set(revision.revision, revision)
+      }
+      const revisions = [...byRevision.values()].sort((left, right) => left.revision - right.revision)
+      const [selected, setSelected] = useState(() => {
+        const initial = revisions.find((revision) => revision.revision === props.initialRevision)
+        return initial === undefined ? [] : [initial.revision]
+      })
+      const selectedRevisions = revisions
+        .filter((revision) => selected.includes(revision.revision))
+        .sort((left, right) => left.revision - right.revision)
+      const toggle = (revision) => {
+        setSelected((current) => {
+          if (current.includes(revision)) return current.filter((value) => value !== revision)
+          if (current.length >= 4) return current
+          return [...current, revision].sort((left, right) => left - right)
+        })
+      }
       return h(
         'div',
         {
@@ -1181,72 +1226,66 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'dsh-memory-diff-head' },
             h('div', null,
-              h('div', { className: 'dsh-memory-diff-title' }, `${t('Compare versions', '版本对比')} · r${diff.from.revision} / r${diff.to.revision}`),
-              h('div', { className: 'dsh-memory-diff-meta' }, `${diff.from.action}/${diff.from.actor} · ${new Date(diff.from.createdAt).toLocaleString()}`),
+              h('div', { className: 'dsh-memory-diff-title' }, `${t('Compare versions', '版本对比')} · ${props.memory?.id ?? ''}`),
+              h('div', { className: 'dsh-memory-diff-meta' }, `${t('Current', '当前')} r${currentRevision} · ${t('select up to 4 old versions', '最多选择 4 个旧版本')}`),
             ),
-            h(
-              'div',
-              { className: 'dsh-memory-diff-head-actions' },
+            h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onClose }, t('Close', '关闭')),
+          ),
+          h(
+            'div',
+            { className: 'dsh-memory-diff-picker' },
+            h('span', { className: 'dsh-memory-diff-picker-label' }, t('Versions', '版本')),
+            ...revisions.map((revision) =>
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dsh-memory-button',
-                  disabled: props.busy,
-                  onClick: props.onRollback,
-                },
-                t('Roll back to this revision', '回滚到此版本'),
+                'label',
+                { key: `pick-${revision.seq ?? revision.revision}`, className: `dsh-memory-diff-picker-item${selected.includes(revision.revision) ? ' selected' : ''}` },
+                h('input', {
+                  type: 'checkbox',
+                  checked: selected.includes(revision.revision),
+                  onChange: () => toggle(revision.revision),
+                }),
+                h('span', null, `r${revision.revision} · ${revision.action}/${revision.actor}`),
+                h('small', null, new Date(revision.createdAt).toLocaleString()),
               ),
-              h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onClose }, t('Close', '关闭')),
             ),
+            h('span', { className: 'dsh-memory-diff-picker-item current' }, `r${currentRevision} · ${t('Current', '当前')}`),
           ),
           h(
             'div',
             { className: 'dsh-memory-diff-columns' },
-            h(
-              'div',
-              { className: 'dsh-memory-diff-pane' },
-              h('div', { className: 'dsh-memory-diff-pane-title' }, `${t('Old version', '旧版本')} · r${diff.from.revision}`),
-              h('div', { className: 'dsh-memory-diff-pane-meta' }, `${diff.from.action}/${diff.from.actor}`),
-              h('div', { className: 'dsh-memory-diff-text' }, diff.from.text ?? ''),
+            ...selectedRevisions.map((revision) =>
+              h(
+                'div',
+                { key: `pane-${revision.seq ?? revision.revision}`, className: 'dsh-memory-diff-pane' },
+                h('div', { className: 'dsh-memory-diff-pane-title' }, `r${revision.revision} · ${revision.action}/${revision.actor}`),
+                h('div', { className: 'dsh-memory-diff-pane-meta' }, new Date(revision.createdAt).toLocaleString()),
+                h('div', { className: 'dsh-memory-diff-text' }, revision.snapshot.text ?? ''),
+                h(
+                  'div',
+                  { className: 'dsh-memory-diff-pane-actions' },
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      className: 'dsh-memory-button',
+                      disabled: props.busy,
+                      onClick: () => props.onRollback(revision.revision),
+                    },
+                    t('Roll back to this revision', '回滚到此版本'),
+                  ),
+                ),
+              ),
             ),
             h(
               'div',
               { className: 'dsh-memory-diff-pane current' },
-              h('div', { className: 'dsh-memory-diff-pane-title' }, `${t('Current', '当前版本')} · r${diff.to.revision}`),
-              h('div', { className: 'dsh-memory-diff-pane-meta' }, diff.to.action),
-              h('div', { className: 'dsh-memory-diff-text' }, diff.to.text ?? ''),
+              h('div', { className: 'dsh-memory-diff-pane-title' }, `${t('Current', '当前版本')} · r${currentRevision}`),
+              h('div', { className: 'dsh-memory-diff-pane-meta' }, t('active record', '当前记录')),
+              h('div', { className: 'dsh-memory-diff-text' }, props.memory?.text ?? ''),
             ),
           ),
-          (diff.fields ?? []).length > 0
-            ? h(
-                'div',
-                { className: 'dsh-memory-diff-fields' },
-                ...(diff.fields ?? []).map((field) =>
-                  h(
-                    'div',
-                    { key: `field-${field.field}`, className: 'dsh-memory-diff-field' },
-                    `${field.field}: ${JSON.stringify(field.before)} → ${JSON.stringify(field.after)}`,
-                  ),
-                ),
-              )
-            : null,
-          (diff.lines ?? []).length > 0
-            ? h(
-                'details',
-                { className: 'dsh-memory-diff-lines' },
-                h('summary', null, t('Line diff', '行级差异')),
-                ...(diff.lines ?? []).map((line, index) =>
-                  h(
-                    'div',
-                    {
-                      key: `line-${index}`,
-                      className: `dsh-memory-diff-line ${line.type === 'add' ? 'dsh-memory-diff-add' : line.type === 'del' ? 'dsh-memory-diff-del' : ''}`,
-                    },
-                    `${line.type === 'add' ? '+' : line.type === 'del' ? '-' : ' '}${line.text}`,
-                  ),
-                ),
-              )
+          selectedRevisions.length === 0
+            ? h('div', { className: 'dsh-memory-diff-field' }, t('Select at least one old version above to compare.', '请选择至少一个旧版本进行对比。'))
             : null,
         ),
       )
@@ -1598,8 +1637,7 @@ window.__ModuleLoader__.load({
       const [historyId, setHistoryId] = useState(null)
       const [historyItems, setHistoryItems] = useState([])
       const [historyBusy, setHistoryBusy] = useState(false)
-      const [diffData, setDiffData] = useState(null)
-      const [diffBusy, setDiffBusy] = useState(false)
+      const [compareRevision, setCompareRevision] = useState(null)
       const [diagnostics, setDiagnostics] = useState(null)
       const [eventList, setEventList] = useState([])
       const [quality, setQuality] = useState(null)
@@ -2020,24 +2058,15 @@ window.__ModuleLoader__.load({
         if (historyId === id) {
           setHistoryId(null)
           setHistoryItems([])
-          setDiffData(null)
+          setCompareRevision(null)
           return
         }
-        setDiffData(null)
+        setCompareRevision(null)
         await loadHistory(id)
       }
 
-      async function showDiff(id, revision) {
-        setDiffBusy(true)
-        setError(null)
-        try {
-          const diff = await client.diffRevisions(id, revision, null)
-          setDiffData(diff)
-        } catch (failure) {
-          setError(errorText(failure))
-        } finally {
-          setDiffBusy(false)
-        }
+      function showDiff(id, revision) {
+        setCompareRevision(revision)
       }
 
       async function rollbackMemory(id, revision) {
@@ -2046,7 +2075,7 @@ window.__ModuleLoader__.load({
         try {
           await client.rollback(id, revision)
           setNotice(`${t('Rolled back to revision', '已回滚到修订')} r${revision}`)
-          setDiffData(null)
+          setCompareRevision(null)
           await refresh()
           await loadHistory(id)
         } catch (failure) {
@@ -2387,15 +2416,15 @@ window.__ModuleLoader__.load({
                         t,
                         items: historyItems,
                         busy: historyBusy,
-                        diff: diffData,
-                        diffBusy,
-                        onDiff: (revision) => void showDiff(memory.id, revision),
-                        onDiffClose: () => setDiffData(null),
+                        memory,
+                        compareRevision,
+                        onDiff: (revision) => showDiff(memory.id, revision),
+                        onDiffClose: () => setCompareRevision(null),
                         onRollback: (revision) => void rollbackMemory(memory.id, revision),
                         onClose: () => {
                           setHistoryId(null)
                           setHistoryItems([])
-                          setDiffData(null)
+                          setCompareRevision(null)
                         },
                       })
                     : null,
