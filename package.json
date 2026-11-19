@@ -55,7 +55,9 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "pack:check": "npm pack --dry-run",
-    "eval:longmemeval": "node test/eval/longmemeval-retrieval.mjs"
+    "eval:longmemeval": "node test/eval/longmemeval-retrieval.mjs",
+    "eval:longmemeval:e2e": "node test/eval/longmemeval-e2e.mjs",
+    "eval:test": "node --test test/eval/metrics.test.mjs"
   },
   "author": "yeweimei",
   "repository": {

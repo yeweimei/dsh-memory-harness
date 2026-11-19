@@ -60,6 +60,20 @@ turn    recall@5/10:  88.0% /  98.0%   MRR  74.9%   nDCG@10  78.8%
 
 Per type, session recall@10 was 100% across knowledge-update, multi-session, single-session-assistant, single-session-preference, single-session-user, and temporal-reasoning. The only turn-level miss was one preference question whose answer turn ranked outside the top 10.
 
+## End-to-end results
+
+The end-to-end harness adds an LLM reader and LLM judge on top of retrieval. It uses `qwen3.6-35b-a3b-mtp` at `127.0.0.1:7000/v1` as both reader and judge; thinking is disabled for the judge and enabled for the reader.
+
+| Run | Questions | Retrieval hit@10 | Accuracy | Notes |
+|---|---:|---:|---:|---|
+| Oracle, turn granularity | 20 | 100% | **70.0%** | oracle history only; reader median ~30s |
+| S, chunk granularity | 12 (10 normal + 2 abs) | 100% | **66.7%** | normal 60.0%, abstention 100%; reader median ~36s |
+
+Oracle turn-level heuristics: exact 35%, contains 65%, token-F1 0.653.  
+S chunk-level heuristics: exact 25%, contains 33.3%, token-F1 0.393.
+
+Both runs use an isolated temporary SQLite directory and never open `~/.dsh/memory/memory.db`. Results are in `test/eval/results/` (gitignored).
+
 ## Baseline result (LongMemEval-S, 50 questions, session granularity)
 
 Run on 2026-11-19 with `seed=42`, local Qwen3-embedding-0.6B (1024d), 2405 sessions:
@@ -71,6 +85,28 @@ session recall@5/10: 92.0% / 96.0%   MRR 82.5%   nDCG@10 85.5%
 Per type (session recall@10): knowledge-update 87.5%, multi-session 100%, single-session-assistant 100%, single-session-preference 100%, single-session-user 88.9%, temporal-reasoning 100%.
 
 Compared with oracle, the S run adds ~50x more distractor sessions: session recall@10 drops from 100% to 96%, MRR from 100% to 82.5%. The two session-level misses were a single-session-user discount fact and a knowledge-update grocery-list question.
+
+## End-to-end commands
+
+```bash
+export LONGMEMEVAL_LLM_API_KEY='...'
+export LONGMEMEVAL_EMBEDDING_API_KEY='...'
+
+# oracle, turn granularity
+npm run eval:longmemeval:e2e -- \
+  --data test/eval/data/longmemeval_oracle.json \
+  --limit 20 --granularity turn --top-k 10 --max-chars 1000 \
+  --out test/eval/results/longmemeval-oracle-e2e-turn-20.json
+
+# S, chunk granularity
+npm run eval:longmemeval:e2e -- \
+  --data test/eval/data/longmemeval_s_cleaned.json \
+  --limit 10 --abstention-limit 2 --granularity chunk \
+  --top-k 10 --max-chars 1500 \
+  --out test/eval/results/longmemeval-s-e2e-chunk-12.json
+```
+
+The reader/judge API key is read from `LONGMEMEVAL_LLM_API_KEY`; the embedding key from `LONGMEMEVAL_EMBEDDING_API_KEY` or `DSH_MEMORY_API_KEY`. No key is written to the report or repository.
 
 ## LongMemEval-S note
 
