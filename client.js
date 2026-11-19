@@ -57,6 +57,11 @@ window.__ModuleLoader__.load({
 .dsh-memory-diff-add { color: var(--dsw-alias-state-success-primary, #2e7d32); background: color-mix(in srgb, var(--dsw-alias-state-success-primary, #2e7d32) 10%, transparent); }
 .dsh-memory-diff-del { color: var(--dsw-alias-state-error-primary, #c62828); background: color-mix(in srgb, var(--dsw-alias-state-error-primary, #c62828) 10%, transparent); }
 .dsh-memory-diff-field { color: var(--dsw-alias-label-secondary); }
+.dsh-memory-diff-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0, 0, 0, .42); }
+.dsh-memory-diff-modal { width: min(920px, 100%); max-height: min(78vh, 720px); overflow: auto; display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 14px; background: var(--dsw-alias-bg-layer-1); box-shadow: 0 18px 60px rgba(0, 0, 0, .28); }
+.dsh-memory-diff-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dsh-memory-diff-title { font-size: 14px; font-weight: 600; }
+.dsh-memory-diff-meta { color: var(--dsw-alias-label-secondary); font-size: 12px; }
 .dsh-memory-page { display: flex; flex-direction: column; gap: 14px; color: var(--dsw-alias-label-primary); font-size: 13px; line-height: 1.5; }
 .dsh-memory-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .dsh-memory-header-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -1133,33 +1138,55 @@ window.__ModuleLoader__.load({
               ),
             ),
         props.diff !== null && props.diff !== undefined
-          ? h(
-              'div',
-              { className: 'dsh-memory-diff' },
-              h(
-                'div',
-                { className: 'dsh-memory-diff-field' },
-                `diff r${props.diff.from.revision} → r${props.diff.to.revision}`,
-              ),
-              ...(props.diff.fields ?? []).map((field) =>
-                h(
-                  'div',
-                  { key: `field-${field.field}`, className: 'dsh-memory-diff-field' },
-                  `${field.field}: ${JSON.stringify(field.before)} → ${JSON.stringify(field.after)}`,
-                ),
-              ),
-              ...(props.diff.lines ?? []).map((line, index) =>
-                h(
-                  'div',
-                  {
-                    key: `line-${index}`,
-                    className: `dsh-memory-diff-line ${line.type === 'add' ? 'dsh-memory-diff-add' : line.type === 'del' ? 'dsh-memory-diff-del' : ''}`,
-                  },
-                  `${line.type === 'add' ? '+' : line.type === 'del' ? '-' : ' '}${line.text}`,
-                ),
-              ),
-            )
+          ? h(DiffModal, { diff: props.diff, t, onClose: props.onDiffClose })
           : null,
+      )
+    }
+
+    function DiffModal(props) {
+      const t = props.t
+      const diff = props.diff
+      return h(
+        'div',
+        {
+          className: 'dsh-memory-diff-backdrop',
+          role: 'dialog',
+          'aria-modal': 'true',
+          onClick: props.onClose,
+        },
+        h(
+          'div',
+          {
+            className: 'dsh-memory-diff-modal',
+            onClick: (event) => event.stopPropagation(),
+          },
+          h(
+            'div',
+            { className: 'dsh-memory-diff-head' },
+            h('div', null,
+              h('div', { className: 'dsh-memory-diff-title' }, `${t('Diff', '对比')} r${diff.from.revision} → r${diff.to.revision}`),
+              h('div', { className: 'dsh-memory-diff-meta' }, `${diff.from.action}/${diff.from.actor} → ${diff.to.action} · ${new Date(diff.from.createdAt).toLocaleString()}`),
+            ),
+            h('button', { type: 'button', className: 'dsh-memory-button', onClick: props.onClose }, t('Close', '关闭')),
+          ),
+          ...(diff.fields ?? []).map((field) =>
+            h(
+              'div',
+              { key: `field-${field.field}`, className: 'dsh-memory-diff-field' },
+              `${field.field}: ${JSON.stringify(field.before)} → ${JSON.stringify(field.after)}`,
+            ),
+          ),
+          ...(diff.lines ?? []).map((line, index) =>
+            h(
+              'div',
+              {
+                key: `line-${index}`,
+                className: `dsh-memory-diff-line ${line.type === 'add' ? 'dsh-memory-diff-add' : line.type === 'del' ? 'dsh-memory-diff-del' : ''}`,
+              },
+              `${line.type === 'add' ? '+' : line.type === 'del' ? '-' : ' '}${line.text}`,
+            ),
+          ),
+        ),
       )
     }
 
@@ -2300,6 +2327,7 @@ window.__ModuleLoader__.load({
                         diff: diffData,
                         diffBusy,
                         onDiff: (revision) => void showDiff(memory.id, revision),
+                        onDiffClose: () => setDiffData(null),
                         onRollback: (revision) => void rollbackMemory(memory.id, revision),
                         onClose: () => {
                           setHistoryId(null)

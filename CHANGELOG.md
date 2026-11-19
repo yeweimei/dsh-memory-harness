@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.20.2
+
+- Show memory revision diffs in a centered modal overlay instead of appending them below the history list, where they could be off-screen and look like the button did nothing.
+- Add a dedicated diff title, source revision metadata and close button; backdrop click closes the modal.
+
 ## 0.20.1
 
 - Strip `<dsh-memory-core>` / `<dsh-memory-recall>` plugin-injection blocks from the extraction transcript so they can never be saved as memories.
