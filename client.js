@@ -213,8 +213,15 @@ window.__ModuleLoader__.load({
 .dsh-memory-grid { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 10px 14px; align-items: center; }
 .dsh-memory-grid > label { color: var(--dsw-alias-label-secondary); font-size: 12px; }
 .dsh-memory-grid .dsh-memory-input, .dsh-memory-grid .dsh-memory-select { flex: none; width: 100%; box-sizing: border-box; }
-.dsh-memory-check { display: flex; gap: 8px; align-items: center; }
-.dsh-memory-check input { accent-color: var(--dsw-alias-brand-primary); }
+.dsh-memory-check { display: flex; gap: 8px; align-items: center; cursor: pointer; user-select: none; }
+.dsh-memory-check input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 38px; height: 22px; flex: 0 0 38px; margin: 0; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-3); position: relative; cursor: pointer; transition: background .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.dsh-memory-check input[type="checkbox"]::after { content: ""; position: absolute; width: 16px; height: 16px; top: 2px; left: 2px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .18s cubic-bezier(.2,.8,.3,1.2); }
+.dsh-memory-check input[type="checkbox"]:checked { background: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
+.dsh-memory-check input[type="checkbox"]:checked::after { transform: translateX(16px); }
+.dsh-memory-check input[type="checkbox"]:active::after { width: 19px; }
+.dsh-memory-check input[type="checkbox"]:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--dsw-alias-brand-primary) 28%, transparent); }
+.dsh-memory-check input[type="checkbox"]:disabled { opacity: .45; cursor: default; }
+.dsh-memory-grid > .dsh-memory-advanced, .dsh-memory-grid > .dsh-memory-hint { grid-column: 1 / -1; }
 .dsh-memory-actions-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .dsh-memory-tabs { display: inline-flex; gap: 2px; align-items: center; flex-wrap: wrap; padding: 3px; border-radius: 10px; background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l1); }
 .dsh-memory-tab { border: 0; background: transparent; color: var(--dsw-alias-label-secondary); border-radius: 8px; padding: 5px 12px; cursor: pointer; font: inherit; font-size: 12px; white-space: nowrap; }
@@ -2498,6 +2505,7 @@ window.__ModuleLoader__.load({
       const [stats, setStats] = useState(null)
       const [apiKeyDraft, setApiKeyDraft] = useState('')
       const [extractionKeyDraft, setExtractionKeyDraft] = useState('')
+      const [jevKeyDraft, setJevKeyDraft] = useState('')
       const [loading, setLoading] = useState(true)
       const [saving, setSaving] = useState(false)
       const [error, setError] = useState(null)
@@ -2606,6 +2614,14 @@ window.__ModuleLoader__.load({
               defaultRating: draft.recall.ratings?.defaultRating === 'somewhat_relevant' ? 'somewhat_relevant' : 'unknown',
             },
           },
+          jev: {
+            enabled: Boolean(draft.jev?.enabled),
+            baseURL: String(draft.jev?.baseURL ?? '').trim(),
+            model: String(draft.jev?.model ?? 'jev-latest').trim() || 'jev-latest',
+            mode: draft.jev?.mode === 'authoritative' ? 'authoritative' : 'shadow',
+            topK: toInteger(draft.jev?.topK, 10),
+            timeoutMs: toInteger(draft.jev?.timeoutMs, 30000),
+          },
           inject: {
             coreMemories: toInteger(draft.inject.coreMemories, 10),
             coreMinImportance: toInteger(draft.inject.coreMinImportance, 3),
@@ -2629,6 +2645,7 @@ window.__ModuleLoader__.load({
         }
         if (apiKeyDraft.trim() !== '') patch.embedding.apiKey = apiKeyDraft.trim()
         if (extractionKeyDraft.trim() !== '') patch.capture.llm.apiKey = extractionKeyDraft.trim()
+        if (jevKeyDraft.trim() !== '') patch.jev.apiKey = jevKeyDraft.trim()
         return patch
       }
 
@@ -2642,6 +2659,7 @@ window.__ModuleLoader__.load({
           setView(nextView)
           setDraft(nextView)
           setApiKeyDraft('')
+          setJevKeyDraft('')
           setSaved(true)
           try {
             setStats(await client.stats())
@@ -2739,6 +2757,21 @@ window.__ModuleLoader__.load({
         setError(null)
         try {
           const nextView = await client.setSettings({ embedding: { apiKey: '' } })
+          setView(nextView)
+          setDraft(nextView)
+          setSaved(true)
+        } catch (failure) {
+          setError(errorText(failure))
+        } finally {
+          setSaving(false)
+        }
+      }
+
+      async function clearJevKey() {
+        setSaving(true)
+        setError(null)
+        try {
+          const nextView = await client.setSettings({ jev: { apiKey: '' } })
           setView(nextView)
           setDraft(nextView)
           setSaved(true)
@@ -3078,7 +3111,7 @@ window.__ModuleLoader__.load({
               value: numberOrEmpty(fieldValue(draft, 'inject', 'proactiveRecall')?.minSimilarity),
               onChange: (event) => editNested('inject', 'proactiveRecall', 'minSimilarity', event.target.value),
             }),
-            h('label', null, t('In-conversation recall ratings', '对话内召回评分')),
+            h('label', null, t('Manual annotation (recall tray)', '人工标注（召回托盘）')),
             h(
               'label',
               { className: 'dsh-memory-check' },
@@ -3109,6 +3142,93 @@ window.__ModuleLoader__.load({
               '记忆内容和逐条管理在左侧栏的「记忆」面板中。',
             ),
           ),
+        ),
+        h(
+          'details',
+          { className: 'dsh-memory-section', open: true },
+          h(
+            'summary',
+            null,
+            h('span', { className: 'dsh-memory-section-title' }, t('Automatic relevance (Jev)', '自动相关度（Jev）')),
+            h('span', { className: 'dsh-memory-section-desc' }, t('Score recalled memories with a Jev System One endpoint; shadow records only, authoritative feeds context reranking.', '用 Jev System One 给召回记忆打分；shadow 只记录，authoritative 会进入上下文重排。')),
+          ),
+          h(
+            'div',
+            { className: 'dsh-memory-grid' },
+            h('label', null, t('Enable Jev assessment', '启用 Jev 自动评分')),
+            h(
+              'label',
+              { className: 'dsh-memory-check' },
+              h('input', {
+                type: 'checkbox',
+                checked: Boolean(fieldValue(draft, 'jev', 'enabled')),
+                onChange: (event) => edit('jev', 'enabled', event.target.checked),
+              }),
+              h('span', null, t('score recalled memories automatically', '自动给召回记忆评分')),
+            ),
+            h('label', null, t('Jev endpoint', 'Jev 服务地址')),
+            h('input', {
+              className: 'dsh-memory-input',
+              type: 'text',
+              placeholder: 'http://127.0.0.1:7000/v1',
+              value: fieldValue(draft, 'jev', 'baseURL') ?? '',
+              onChange: (event) => edit('jev', 'baseURL', event.target.value),
+            }),
+            h('label', null, t('Model', '模型')),
+            h('input', {
+              className: 'dsh-memory-input',
+              type: 'text',
+              placeholder: 'jev-latest',
+              value: fieldValue(draft, 'jev', 'model') ?? 'jev-latest',
+              onChange: (event) => edit('jev', 'model', event.target.value),
+            }),
+            h('label', null, t('Mode', '模式')),
+            h(
+              'select',
+              {
+                className: 'dsh-memory-select',
+                value: fieldValue(draft, 'jev', 'mode') ?? 'shadow',
+                onChange: (event) => edit('jev', 'mode', event.target.value),
+              },
+              h('option', { value: 'shadow' }, t('Shadow — record only', 'Shadow — 只记录')),
+              h('option', { value: 'authoritative' }, t('Authoritative — affects future rerank', 'Authoritative — 影响后续重排')),
+            ),
+            h('label', null, t('Memories per assessment', '每次评估条数')),
+            h('input', {
+              className: 'dsh-memory-input',
+              type: 'number',
+              min: 1,
+              max: 20,
+              value: numberOrEmpty(fieldValue(draft, 'jev', 'topK')),
+              onChange: (event) => edit('jev', 'topK', event.target.value),
+            }),
+            h('label', null, t('Timeout (ms)', '超时（毫秒）')),
+            h('input', {
+              className: 'dsh-memory-input',
+              type: 'number',
+              min: 500,
+              max: 60000,
+              value: numberOrEmpty(fieldValue(draft, 'jev', 'timeoutMs')),
+              onChange: (event) => edit('jev', 'timeoutMs', event.target.value),
+            }),
+            h('label', null, t('API key', 'API Key')),
+            h(
+              'div',
+              { className: 'dsh-memory-actions-row' },
+              h('input', {
+                className: 'dsh-memory-input',
+                type: 'password',
+                autoComplete: 'off',
+                placeholder: fieldValue(draft, 'jev', 'apiKeySet') ? t('configured — leave empty to keep', '已配置，留空保持不变') : t('not configured', '未配置'),
+                value: jevKeyDraft,
+                onChange: (event) => { setSaved(false); setJevKeyDraft(event.target.value) },
+              }),
+              fieldValue(draft, 'jev', 'apiKeySet')
+                ? h('button', { type: 'button', className: 'dsh-memory-button danger', disabled: saving, onClick: () => void clearJevKey() }, t('Clear', '清除'))
+                : null,
+            ),
+          ),
+          h('div', { className: 'dsh-memory-hint' }, t('Sends the query and recalled snippets to the configured Jev endpoint. Disable to keep everything local to SQLite.', '会把 query 和召回片段发送到配置的 Jev 服务；关闭后不发送。')),
         ),
         h(
           'details',

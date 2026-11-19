@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.21.3
+
+- Add Jev configuration to the Memory settings page: enable switch, endpoint, model, shadow/authoritative mode, per-assessment count, timeout and write-only API key.
+- Store the Jev API key in the Harness credential record (`dsh-memory/jev-api-key`), never in settings or the memory database.
+- Add an explicit "Manual annotation (recall tray)" switch; it can be turned off when Jev is authoritative.
+- Replace native setting checkboxes with animated slider switches and fix the two-column settings grid alignment around advanced sections.
+
 ## 0.21.2
 
 - Add `jev.mode: authoritative`: Jev scores are written as context feedback, so future similar queries use the automatic relevance judgement for bounded reranking.
