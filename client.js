@@ -3111,28 +3111,6 @@ window.__ModuleLoader__.load({
               value: numberOrEmpty(fieldValue(draft, 'inject', 'proactiveRecall')?.minSimilarity),
               onChange: (event) => editNested('inject', 'proactiveRecall', 'minSimilarity', event.target.value),
             }),
-            h('label', null, t('Manual annotation (recall tray)', '人工标注（召回托盘）')),
-            h(
-              'label',
-              { className: 'dsh-memory-check' },
-              h('input', {
-                type: 'checkbox',
-                checked: Boolean(fieldValue(draft, 'recall', 'ratings')?.enabled),
-                onChange: (event) => editNested('recall', 'ratings', 'enabled', event.target.checked),
-              }),
-              h('span', null, t('show the recall tray above the composer', '在输入框上方显示召回托盘')),
-            ),
-            h('label', null, t('Unrated default', '未评价默认值')),
-            h(
-              'select',
-              {
-                className: 'dsh-memory-select',
-                value: fieldValue(draft, 'recall', 'ratings')?.defaultRating ?? 'unknown',
-                onChange: (event) => editNested('recall', 'ratings', 'defaultRating', event.target.value),
-              },
-              h('option', { value: 'unknown' }, t('Unknown — excluded from accuracy', '未评价 — 不计入准确率')),
-              h('option', { value: 'somewhat_relevant' }, t('Somewhat relevant — 0.25 weight', '一般相关 — 0.25 权重')),
-            ),
           ),
           h(
             'div',
@@ -3165,6 +3143,28 @@ window.__ModuleLoader__.load({
                 onChange: (event) => edit('jev', 'enabled', event.target.checked),
               }),
               h('span', null, t('score recalled memories automatically', '自动给召回记忆评分')),
+            ),
+            h('label', null, t('Manual annotation (recall tray)', '人工标注（召回托盘）')),
+            h(
+              'label',
+              { className: 'dsh-memory-check' },
+              h('input', {
+                type: 'checkbox',
+                checked: Boolean(fieldValue(draft, 'recall', 'ratings')?.enabled),
+                onChange: (event) => editNested('recall', 'ratings', 'enabled', event.target.checked),
+              }),
+              h('span', null, t('show the recall tray above the composer', '在输入框上方显示召回托盘')),
+            ),
+            h('label', null, t('Unrated default', '未评价默认值')),
+            h(
+              'select',
+              {
+                className: 'dsh-memory-select',
+                value: fieldValue(draft, 'recall', 'ratings')?.defaultRating ?? 'unknown',
+                onChange: (event) => editNested('recall', 'ratings', 'defaultRating', event.target.value),
+              },
+              h('option', { value: 'unknown' }, t('Unknown — excluded from accuracy', '未评价 — 不计入准确率')),
+              h('option', { value: 'somewhat_relevant' }, t('Somewhat relevant — 0.25 weight', '一般相关 — 0.25 权重')),
             ),
             h('label', null, t('Jev endpoint', 'Jev 服务地址')),
             h('input', {

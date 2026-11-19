@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.4
+
+- Move the manual annotation switch next to the Jev controls so the automatic/manual choice is visible in one place.
+- Keep the recall tray default-rating selector beside it.
+- Jev fields populate from the effective config after the host reloads.
+
 ## 0.21.3
 
 - Add Jev configuration to the Memory settings page: enable switch, endpoint, model, shadow/authoritative mode, per-assessment count, timeout and write-only API key.
