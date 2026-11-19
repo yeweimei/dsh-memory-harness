@@ -150,7 +150,7 @@ jev:
   model: jev-latest
   apiKey: ...
   topK: 10
-  timeoutMs: 10000
+  timeoutMs: 30000
 ```
 
 评分写入 `memory_auto_relevance`，与用户显式评分分开；这是 shadow 数据，不会直接改 `qualityScore` 或触发复核。Jev 不可用不会影响召回。

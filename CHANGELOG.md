@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.21.1
+
+- Raise the default Jev assessment timeout from 10s to 30s; a local 4B Kev/Jev endpoint can take ~10s for five candidates and was timing out before writing scores.
+- Document the timeout requirement for local Jev endpoints.
+
 ## 0.21.0
 
 - Add optional Jev (TypeSafe System One) recall relevance assessment.
