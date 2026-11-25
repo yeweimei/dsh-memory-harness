@@ -66,10 +66,10 @@ memory action=search query="部署方案" since=2026-01-01 until=2026-06-30
 dsh plugin --profile web add github:yeweimei/dsh-memory-harness
 ```
 
-或从 [Releases](https://github.com/yeweimei/dsh-memory-harness/releases) 下载 `dsh-memory-harness-0.22.0.tgz`：
+或从 [Releases](https://github.com/yeweimei/dsh-memory-harness/releases) 下载 `dsh-memory-harness-0.22.1.tgz`：
 
 ```bash
-dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.22.0.tgz"
+dsh plugin --profile web add "file:/绝对路径/dsh-memory-harness-0.22.1.tgz"
 ```
 
 也可以使用 DSH 的 Plugin Manager 安装 `dsh-memory-harness`。
