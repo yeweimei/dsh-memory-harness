@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { Extractor, buildTranscript, parseExtraction, stripInjectedBlocks, transcriptLimit } from '../lib/extract.js'
+import { Extractor, authoredUserText, buildTranscript, isUserAuthoredMessage, parseExtraction, stripInjectedBlocks, transcriptLimit } from '../lib/extract.js'
 import { resolveConfig } from '../lib/config.js'
 
 function event(seq, type, data) {
@@ -42,6 +42,57 @@ test('buildTranscript drops plugin-injected memory blocks but keeps user text', 
   assert.ok(!text.includes('old fact'))
   assert.ok(text.includes('真正的问题：部署走哪个代理？'))
   assert.equal(stripInjectedBlocks('<dsh-memory-core>x</dsh-memory-core>  hello'), 'hello')
+  assert.equal(stripInjectedBlocks('<system-reminder>ctx</system-reminder>  真正的话'), '真正的话')
+})
+
+test('capture rules only inspect user-authored text', () => {
+  const real = event(1, 'user/message', { source: { kind: 'user' }, content: [{ type: 'text', text: '以后都用 pnpm，不要用 npm' }] })
+  assert.equal(authoredUserText(real), '以后都用 pnpm，不要用 npm')
+
+  const recall = event(2, 'user/message', {
+    source: { kind: 'dsh-memory', form: 'snapshot' },
+    content: [{ type: 'text', text: '<dsh-memory-recall>2 pitfalls / 已知同类坑</dsh-memory-recall>' }],
+  })
+  assert.equal(authoredUserText(recall), '')
+
+  const instructions = event(3, 'user/message', {
+    source: { kind: 'agent-instructions' },
+    content: [{ type: 'text', text: '<system-reminder>记住这个坑</system-reminder>' }],
+  })
+  assert.equal(authoredUserText(instructions), '')
+
+  const runtime = event(4, 'user/message', {
+    source: { kind: 'runtime-context' },
+    content: [{ type: 'text', text: 'Current runtime context: 记住以后不要用 npm' }],
+  })
+  assert.equal(authoredUserText(runtime), '')
+
+  // A merged injected block inside a real message is stripped, the real text stays.
+  const merged = event(5, 'user/message', {
+    source: { kind: 'user' },
+    content: [{ type: 'text', text: '<dsh-memory-recall>pitfall 教训</dsh-memory-recall>\n以后都用 pnpm' }],
+  })
+  assert.equal(authoredUserText(merged), '以后都用 pnpm')
+
+  assert.equal(isUserAuthoredMessage(event(6, 'user/message', { content: [{ type: 'text', text: 'no source' }] })), true)
+  assert.equal(isUserAuthoredMessage(event(7, 'assistant/message', { message: { content: [] } })), false)
+})
+
+test('buildTranscript omits harness-injected user messages', () => {
+  const events = [
+    event(1, 'user/message', { source: { kind: 'user' }, content: [{ type: 'text', text: '这个坑是 pnpm 的 build script' }] }),
+    event(2, 'user/message', {
+      source: { kind: 'dsh-memory', form: 'snapshot' },
+      content: [{ type: 'text', text: '<dsh-memory-recall>2 pitfalls 教训</dsh-memory-recall>' }],
+    }),
+    event(3, 'user/message', { source: { kind: 'runtime-context' }, content: [{ type: 'text', text: 'Current runtime context 记住' }] }),
+    event(4, 'user/message', { source: { kind: 'agent-instructions' }, content: [{ type: 'text', text: '<system-reminder>本工作区约定</system-reminder>' }] }),
+  ]
+  const text = buildTranscript(events, -1)
+  assert.ok(text.includes('pnpm 的 build script'))
+  assert.ok(!text.includes('2 pitfalls'))
+  assert.ok(!text.includes('Current runtime context'))
+  assert.ok(!text.includes('本工作区约定'))
 })
 
 test('admitPending runs the judge and applies validated decisions only', async () => {

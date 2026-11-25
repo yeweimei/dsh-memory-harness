@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.22.1
+
+- Fix the rule-layer capture feedback loop: harness-injected user-role context (memory recall, runtime context, agent instructions, skill catalogue, policy notices) was scanned as if the user had typed it, so a recalled pitfall that mentioned "pitfall/坑/教训" could be captured back as a new candidate, and an admitted echo would be recalled and re-captured again. Only messages whose `source.kind` is `user` are inspected now.
+- Strip `<dsh-memory-core/recall>` and `<system-reminder>` blocks and redact secrets before rule matching; the stored evidence quote is taken from the cleaned text.
+- Extraction transcripts skip injected user-role messages entirely, so recall and workspace instructions no longer consume the extraction token budget or get summarized as user statements.
+
 ## 0.22.0
 
 - Memory panel: remove row-level History/More; keep only high-frequency actions and move history/version comparison into the detail drawer.

@@ -1,6 +1,6 @@
 {
   "name": "dsh-memory-harness",
-  "version": "0.22.0",
+  "version": "0.22.1",
   "description": "Persistent cross-session memory for DeepSeek Harness: SQLite storage with FTS5/vector/graph retrieval, on-demand capture, rule+LLM candidate extraction (pitfalls, decisions, project digests), proactive failure hints, credential-backed embedding settings and a memory panel.",
   "type": "module",
   "main": "./index.js",

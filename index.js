@@ -12,7 +12,7 @@
  * plus the package-private RPC the settings page and memory panel use.
  */
 import { MemoryService } from './lib/service.js'
-import { Extractor } from './lib/extract.js'
+import { Extractor, authoredUserText } from './lib/extract.js'
 import { createMemoryTool } from './lib/tool.js'
 import { registerCommands } from './lib/commands.js'
 import { registerCoreMemoryInjection, registerProactiveRecall } from './lib/inject.js'
@@ -107,20 +107,25 @@ export async function apply(ctx, rawConfig) {
   // Rule layer: user corrections become candidates (confirmed only in the panel).
   ctx.on('session/event', (session, event) => {
     if (event.type !== 'user/message' || service.config.capture.mode === 'off') return
-    const text = contentText(event.data?.content)
+    // Only text the user actually typed. Harness/plugin-injected user-role
+    // messages (memory recall, runtime context, instructions, skill catalogue,
+    // policy notices) must never be captured back as a user correction, or a
+    // recalled pitfall would re-capture itself on every turn.
+    const text = authoredUserText(event)
     if (text === '' || !CORRECTION_PATTERN.test(text)) return
     const project = typeof session.header?.cwd === 'string' ? session.header.cwd : null
     extractor.markDirty(session.id, project)
     if (project === null) return
     const kind = PITFALL_PATTERN.test(text) ? 'pitfall' : 'preference'
+    const quote = text.slice(0, 300)
     void service
       .createCandidate(
         {
           text: text.slice(0, 1200),
           kind,
-          details: { evidence: { sessionId: session.id, quote: text.slice(0, 300) } },
+          details: { evidence: { sessionId: session.id, quote } },
         },
-        { source: 'rules', confidence: 0.55, evidence: { sessionId: session.id, quote: text.slice(0, 300) } },
+        { source: 'rules', confidence: 0.55, evidence: { sessionId: session.id, quote } },
         { workspace: project, sessionId: session.id },
       )
       .catch((error) => logger?.warn?.(`dsh-memory: rule candidate failed: ${String(error)}`))
